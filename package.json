@@ -6,7 +6,7 @@
   "type":"module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build":"rollup index.js -n providentpali --file providentpali.js -f iife"
+    "build":"rollup index.js -n providentpali --file provident-pali.js -f iife"
   },
   "repository": {
     "type": "git",
