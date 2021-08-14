@@ -5,6 +5,8 @@ A visually and memory compact, intuitive Pali script transliteration scheme.
 
 ## 演示
 
+https://github.io/dhamma/provident-pali
+
 ## 传统的转写方案
 巴利语可以用多种字母（Tipitaka-App 的Pali Script Converter 提供了十七种）来转写。其中以拉丁字母为基础的 **国际梵语转写字母** (IAST) 已成为保存梵文及巴利文电子文本的主流标准。
 
