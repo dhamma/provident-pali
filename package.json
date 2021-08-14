@@ -1,0 +1,22 @@
+{
+  "name": "provident-pali",
+  "version": "0.0.1",
+  "description": "A visually and memory compact, intuitive Pali script transliteration scheme.",
+  "main": "index.js",
+  "type":"module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build":"rollup index.js -n providentpali --file providentpali.js -f iife"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhamma/provident-pali.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dhamma/provident-pali/issues"
+  },
+  "homepage": "https://github.com/dhamma/provident-pali#readme"
+}

@@ -1,0 +1,8 @@
+glyphstudio
+*.txt
+*.7z
+*.svg
+*.cmd
+old
+src
+backup
