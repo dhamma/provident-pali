@@ -39,7 +39,7 @@ const i2p={
     'kk':'kXk', 'kkh':'kXK',    'gg':'gXg', 'ggh':'gXG',
     'tt':'tXT', 'tth':'tXT',    'ṭṭ':'VXV', 'ṭṭh':'VXW',
     'pp':'pXp', 'pph':'pXP',    'bb':'bXb', 'bbh':'bXB',
-    'jj':'bXb', 'jjh':'jXJ',    'cc':'cXc', 'cch':'cXC',
+    'jj':'jXj', 'jjh':'jXJ',    'cc':'cXc', 'cch':'cXC',
     'll':'lXl', 'mm':'mXm',     'nn':'nXn', 'ññ':'YXY',
     'dd':'dXd', 'ddh':'dXD',    'ḍḍ':'FXF', 'ḍḍh':'FXQ',
     'ss':'sXs', 'yy':'yXy',     
