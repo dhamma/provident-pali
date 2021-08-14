@@ -79,7 +79,7 @@ A visually and memory compact, intuitive Pali script transliteration scheme.
 
 4. `X` 是连音符，只要辅音中间无母音，就必须用`X`连起来。在支持ligatures的系统上，常见的组合会在视觉上更紧凑（如ss，nn，会垂直叠起），否则辅音之会有小的加号表示中间无元音。
 
-5. 元音在词首出现，继续使用小写。 anatta 记作：`antXt` 。即首字母沿用 a,ā,i,ī,u,ū,e,o，字中间的元音，以 `A`表示ā長音 , `I`表i  ,  `H`表ī , `U`表u , `V`表ū, `E`表e, `O`表o 表示。如 sāsana 编码为 `sAsn` ，套上字体呈现为 s̄sn 。
+5. 元音在词首出现，继续使用小写。 anatta 记作：`antXt` 。即首字母沿用 a,ā,i,ī,u,ū,e,o，字中间的元音，以 `A`表示ā長音 , `I`表i  ,  `II`表ī , `U`表u , `UU`表ū, `E`表e, `O`表o 表示。如 sāsana 编码为 `sAsn` ，套上字体呈现为 s̄sn 。
 
 6. 软颚音 ṅ 只出现在  k, kh, g, gh 之前，与卷舌 ṇ 也永远不会在k,kh,g,gh 之前，因此两者共用编码 `N` 。例：saṅgha 记为是 `sNG`。字体会将 软颚音化入 k 和 g ，变成上方的黑点。vaṇṇa 记为 `vNXN`。
 
