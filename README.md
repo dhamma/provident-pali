@@ -8,7 +8,7 @@ A visually and memory compact, intuitive Pali script transliteration scheme.
 https://dhamma.github.io/provident-pali
 
 ## 传统的转写方案
-巴利语可以用多种字母（Tipitaka-App 的Pali Script Converter 提供了十七种）来转写。其中以拉丁字母为基础的 **国际梵语转写字母** (IAST) 已成为保存梵文及巴利文电子文本的主流标准。
+巴利语可以用多种字母（Tipitaka-App 的Pali Script Converter 提供了十七种）来转写。其中以一百多年前在雅典制定、以拉丁字母为基础的 **国际梵语转写字母** (IAST) 已成为保存梵文及巴利文电子文本的主流标准。（对巴利语而言，新世纪的ISO 15919 和 IAST 只有 ṁ/ṃ 的小差异，可等同视之。）
 
 相对于传统的天城体、僧伽罗文、缅文、泰文、老挝文，IAST有几个好处
 
@@ -35,7 +35,7 @@ https://dhamma.github.io/provident-pali
 
 4. 在IAST 方案中，有吐气的音加上了h，而h本身又是辅音。
     也就是说，搜寻“ha”會同時找到 bha, pha, tha 等等，必须额外滤掉。
-    将一個巴利字母编码成多个拉丁字母，是不妥当設計。
+    将一個巴利字母编码成多个拉丁字母，是不妥当設計。(即，IAST 非 prefix code)
 
     一来这是以拉丁字母为本位的思路作祟，二来由于近百年前技术手段的限制，
     梵文字母必须尽可能利用西文机械打字机，而键盘上的字母空间极为有限，不可能塞进太多梵文字母。
@@ -79,17 +79,17 @@ https://dhamma.github.io/provident-pali
 
 3. 吐气音(带h的) ，以相应的大写表示，如kh以`K`表示，gh以`G`表示，字形呈现则是中间多带一个h的第二笔弯钩。其余还有`C` `J` `T` `D` `P` `B`，共8个。
 
-4. `X` 是连音符，只要辅音中间无母音，就必须用`X`连起来。在支持ligatures的系统上，常见的组合会在视觉上更紧凑（如ss，nn，会垂直叠起），否则辅音之会有小的加号表示中间无元音。
+4. `V` 是连音符(Virama)，只要辅音中间无母音，就必须用`V`连起来。在支持合文（ligature）的系统上，常见的组合会在视觉上更紧凑（如ss，nn，会垂直叠起），否则辅音之会有小的加号表示中间无元音。
 
-5. 元音在词首出现，继续使用小写。 anatta 记作：`antXt` 。即首字母沿用 a,ā,i,ī,u,ū,e,o，字中间的元音，以 `A`表示ā長音 , `I`表i  ,  `II`表ī , `U`表u , `UU`表ū, `E`表e, `O`表o 表示。如 sāsana 编码为 `sAsn` ，套上字体呈现为 s̄sn 。
+5. 元音在词首出现，继续使用小写。 anatta 记作：`antVt` 。即首字母沿用 a,ā,i,ī,u,ū,e,o，字中间的元音，以 `A`表示ā長音 , `I`表i  ,  `II`表ī , `U`表u , `UU`表ū, `E`表e, `O`表o 表示。如 sāsana 编码为 `sAsn` ，套上字体呈现为 s̄sn 。
 
-6. 软颚音 ṅ 只出现在  k, kh, g, gh 之前，与卷舌 ṇ 也永远不会在k,kh,g,gh 之前，因此两者共用编码 `N` 。例：saṅgha 记为是 `sNG`。字体会将 软颚音化入 k 和 g ，变成上方的黑点。vaṇṇa 记为 `vNXN`。
+6. 软颚音 ṅ 只出现在  k, kh, g, gh 之前，与卷舌 ṇ 也永远不会在k,kh,g,gh 之前，因此两者共用编码 `N` 。例：saṅgha 记为是 `sNG`。字体会将 软颚音化入 k 和 g ，变成上方的黑点。vaṇṇa 记为 `vNVN`。
 
 8. ḷ 以 `L` 表示。
 
 9. ṃ 记作 `M` ，视觉上会化作前面字母下方的圆圈。和ṅ一样，不占用水平空间。ṃ 只出现在元音之后。
 
-9. 最后五个字母 ḍ `F` , ḍh `Q` , ṭ `V` , ṭh `W` ,ñ `Y`。助记法是 `F` 是 d 之后首个巴利语中没用到的英文本母，然后是`Q`，而t之后还没用到的是`V`，之后是 `W` 。ñ的发音是nYa。
+9. 最后五个字母 ḍ `F` , ḍh `Q` , ṭ `W` , ṭh `X` ,ñ `Y`。助记法是 `F` 是 d 之后首个巴利语中没用到的英文本母，然后是`Q`，而t之后还没用到的是`W`，之后是 `X` 。ñ的发音是nYa。
 
 10. 梵文字母
     
@@ -98,9 +98,23 @@ https://dhamma.github.io/provident-pali
     止韵 : ḥ `H` 
     响音 : ṛ `R`   ṝ `RA` ḹ `LA` 
 
+## 与其他类似方案之比较
 
+### WX Notation
+   与本方案最接近，但并没有考虑到字体呈现，它主要是做为输入及计算机内部处理之用。
 
-### 本系统的利益与代价
+   因为占用了英文小写的f,q,w,x ，因此它无法与 IAST（不含大写字母）兼容。
+
+   此外，它还保留了短元音a，占空间较本方案大（但比IAST小）。
+
+   它对印地语及其他方言的考虑周详，但本方案只关注巴利语。
+
+   参考材料： https://shivamrana.me/2019/03/wx_notation/
+
+### Velthuis 与 ITRANS
+   用到 ascii 标点符号，不利与标志语言合作。
+
+## 本系统的利益与代价
 1. 利益：
   
     1. 画面增加两倍以上内容。(熵值倍增)
@@ -133,10 +147,10 @@ https://dhamma.github.io/provident-pali
 ```javascript
     import {fromIAST,toIAST} from "provident-pali"
 
-    fromIAST('buddha')==='bUdXD'
+    fromIAST('buddha')==='bUdVD'
 
     //keep the text inside <> intact
-    fromIAST('<span>dhammaṃ</span>',{format:'xml'})==='<span>DmXmM</span>'
+    fromIAST('<span>dhammaṃ</span>',{format:'xml'})==='<span>DmVmM</span>'
 
 ```
 ```html
@@ -151,5 +165,5 @@ https://dhamma.github.io/provident-pali
     toIAST('BgvA')==='bhagavā'
 
     //keep the text inside <> intact
-    toIAST('<div>sNXGM</div>',{format:'xml'})==='<div>saṅghaṃ</div>'
+    toIAST('<div>sNVGM</div>',{format:'xml'})==='<div>saṅghaṃ</div>'
 ```
