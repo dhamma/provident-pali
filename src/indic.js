@@ -34,6 +34,7 @@ export const fromDevanagari=content=>{
             }
         }
     });
-    out=out.replace(/‘‘/g,'“').replace(/’’/g,'”').replace(/\u200d/g,'');
+    // out=out.replace(/\u200d/g,'');
+    out=out.replace(/[ऀ-ॿ]/g,''); //drop all unknown
     return out;
 }
