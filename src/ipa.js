@@ -11,7 +11,7 @@ const p2e={
     'M':'~',
 
 };
-
+/*
 export const toESpeak=(str,opts={})=>{
     let out='';
     const convert=p=>{
@@ -54,3 +54,4 @@ export const toESpeak=(str,opts={})=>{
 
     return out;
 }
+*/

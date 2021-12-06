@@ -1,6 +1,6 @@
 {
   "name": "provident-pali",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A visually and memory compact, intuitive Pali script transliteration scheme.",
   "main": "index.js",
   "type":"module",
