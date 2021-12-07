@@ -1,4 +1,4 @@
-import {devanagari,myanmar,thai,khmer,lao,sinhala,tibetan} from './tables.js';
+import {devanagari,myanmar,thai,khmer,laos,sinhala,tibetan} from './tables.js';
 
 const inverseTable=tbl=>{
     const out={};
@@ -9,7 +9,7 @@ const inverseTable=tbl=>{
 const tables={
     hi:inverseTable(devanagari), my:inverseTable(myanmar),
     th:inverseTable(thai),       km:inverseTable(khmer),
-    lo:inverseTable(lao),       si:inverseTable(sinhala),
+    lo:inverseTable(laos),       si:inverseTable(sinhala),
     tb:inverseTable(tibetan) //,    cy:inverseTable(cyrillic),
 }
 export const convertToIndic=(content,table)=>{ //pure text, no tag
@@ -19,7 +19,19 @@ export const convertToIndic=(content,table)=>{ //pure text, no tag
         if (o) {
             i++;
         } else o=table[content[i]];
-        if (o) out+=o; else out+=content[i];
+        if (o) {
+            if (content[i]==='N' && content[i+1]==='V') {
+                const c=content[i+2];
+                if (c==='k'||c=='K'||c=='g'||c==='G') {
+                    o=table.NG;
+                    if (table==tables.my) {
+                        //https://viss.wordpress.com/2015/05/17/how-to-transcribe-pa%E1%B8%B7i-in-lanna-and-burmese/
+                        o+=String.fromCharCode(0x103a);//ASAT 
+                    }
+                }
+            }
+            out+=o; 
+        } else out+=content[i];
         i++;
     }
     return out;
