@@ -26,7 +26,7 @@ export const breakIASTSyllable=str=>{
 }
 const Vowels={
     '':'',
-'a':'','ā':'A','i':'I','ī':'II','u':'U','ū':'UU','e':'E','o':'O'
+    'a':'','ā':'A','i':'I','ī':'II','u':'U','ū':'UU','e':'E','o':'O'
 }
 const beginVowels={
     'a':'a','ā':'aA','i':'i','ī':'iI','u':'u','ū':'uU','o':'o','e':'e',
@@ -34,6 +34,7 @@ const beginVowels={
 const i2p={
     'k':'k','t':'t','ñ':'Y','ṅ':'N','ṇ':'N','ḍ':'F','ṭ':'W','p':'p','c':'c','j':'j',
     's':'s','b':'b','y':'y','g':'g','d':'d','h':'h','m':'m','l':'l','v':'v','r':'r','n':'n',
+    'ḷ':'L',
     'kh':'K', 'gh':'G', 'jh':'J', 'ch':'C' ,'ṭh':'X', 'ḍh':'Q', 'th':'T', 'dh':'D', 'ph':'P', 'bh':'B',
     'kk':'kVk', 'kkh':'kVK',    'gg':'gVg', 'ggh':'gVG',
     'tt':'tVt', 'tth':'tVT',    'ṭṭ':'WVW', 'ṭṭh':'WVX',
@@ -84,7 +85,14 @@ const i2p={
     'dm':'dVm',
     'khv':'KVv',
     'ṇy':'NVy',
-    'kv':'kVv'
+    'kv':'kVv',
+    'ṇh':'NVh',//newly added
+    'ñh':'YVh',
+    'vy':'vVy',
+    'by':'bVy',
+    'py':'pVy',
+    'yv':'yVv',
+    'ṭy':'WVy',
 }
 const p2i={};
 for (let key in i2p) p2i[i2p[key]]=key;
@@ -92,6 +100,7 @@ for (let key in beginVowels) p2i[beginVowels[key]]=key;
 
 export const convertIASTSyllable=(syl,begin)=>{
     let out='';
+    
     if (isRomanized(syl)) {
         let m=syl.match(/^([kgṅcjñṭḍṇtdnpbylḷhsmrv]*)([aāiīuūeo])(ṃ?)$/);
         if (m) {
@@ -113,7 +122,9 @@ export const convertIASTSyllable=(syl,begin)=>{
 
 
 export const fromIAST=(input,opts={})=>{
-    const parts=(opts.format==='xml')?input.split(/(<[^<]+>)/):[input];
+    let parts=input;
+    if (opts.format==='xml') parts=input.split(/(<[^<]+>)/);
+    else if (typeof parts=='string') parts=[input];
     let out='';
     for (let j=0;j<parts.length;j++) {
         if (parts[j][0]=='<') {
@@ -122,6 +133,7 @@ export const fromIAST=(input,opts={})=>{
         }
         const str=parts[j].replace(/ṁ/ig,'ṃ');
         const words=breakIASTSyllable(str);
+
         let s='';
         for (let i=0;i<words.length;i++) {
             for (let j=0;j<words[i].length;j++) {
@@ -152,16 +164,14 @@ export const toIAST=(str,opts={})=>{
         let needvowel=false;
         while (i<p.length) {
             ch=p[i];
-            
             //allow sauddesaṁ
             //if ('aeiou'.indexOf(ch)>-1) return out+'!'+p.substr(i);
-
             const v='MAEIOU'.indexOf(ch);
             if (v>-1) {
-                if (v==0&&needvowel) out+='a';
+                if (v==0&&needvowel) out+='a'; // ṃ need 'a'
                 if (p[i+1]=='I') {i++;out+='ī'}
                 else if (p[i+1]=='U') {i++;out+='ū'}
-                else out+='ṃāeiou'[v];
+                else out+='ṃāeiou'[v]||'';
                 i++; 
                 needvowel=false;
             }  else { 
@@ -171,16 +181,23 @@ export const toIAST=(str,opts={})=>{
                 
                 while (i<p.length&& p[i+1]=='V') {
                     cons+='V'+p[i+2];
+                    needvowel=true;
                     i+=2;
                 }
                 const c=p2i[cons];
                 if (!c) {
                     return out+'!2'+p.substr(i);
                 } else {
-                    out+=c;
-                    needvowel=true;
+                    needvowel='aeiou'.indexOf(c)==-1;
+                    if (c=='a' && p[i+1]=='A') {
+                        i++;
+                        out+='ā'
+                    } else {
+                        out+=c;
+                    }
                     i++;
                 }
+
             }
         }
         if (needvowel) out+='a';
@@ -188,7 +205,6 @@ export const toIAST=(str,opts={})=>{
     }
 
     const parts=(opts.format==='xml')?str.split(/(<[^<]+>)/):[str];
-
     for (let j=0;j<parts.length;j++) {
         if (parts[j][0]=='<') {
             out+=parts[j];
