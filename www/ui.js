@@ -1,4 +1,4 @@
-const {toIndic,fromIAST,toIAST} =window.providentpali;
+const {provident2indic,fromIAST,toIAST} =window.providentpali;
 const stockPhrases={
     "itipi so":"itipi so bhagavā arahaṃ sammāsambuddho vijjācaraṇasampanno sugato lokavidū anuttaro purisadammasārathi satthā devamanussānaṃ buddho bhagavā'ti;  svākkhāto bhagavatā dhammo, sandiṭṭhiko akāliko ehipassiko opaneyyiko paccattaṃ veditabbo viññūhī’ti; ‘suppaṭipanno bhagavato sāvakasaṅgho, ujuppaṭipanno bhagavato sāvakasaṅgho, ñāyappaṭipanno bhagavato sāvakasaṅgho, sāmīcippaṭipanno bhagavato sāvakasaṅgho, yadidaṃ cattāri purisayugāni, aṭṭha purisapuggalā. Esa bhagavato sāvakasaṅgho āhuneyyo pāhuneyyo dakkhiṇeyyo añjalikaraṇīyo, anuttaraṃ puññakkhettaṃ lokassā’ti.",
     "evam me sutam":"evaṃ me sutaṃ – ekaṃ samayaṃ bhagavā sāvatthiyaṃ viharati jetavane anāthapiṇḍikassa ārāme.",
@@ -45,7 +45,7 @@ const convertFromIAST=str=>{
     // document.querySelector("#espeak").value=toESpeak(s);
 }
 const convertFromProvident=str=>{
-    const s=(_lang=='ro')?toIAST(str,{format:'xml'}):toIndic(str,_lang);
+    const s=(_lang=='ro')?toIAST(str,{format:'xml'}):provident2indic(str,_lang);
     document.querySelector("#iast").value=s;
 }
 let suttaid='';

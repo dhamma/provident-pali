@@ -64,3 +64,6 @@ export const fromDevanagari=content=>{
     out=out.replace(/[ऀ-ॿ]/g,''); //drop all unknown
     return out;
 }
+
+
+export default {convertToIndic,toIndic,fromDevanagari}
