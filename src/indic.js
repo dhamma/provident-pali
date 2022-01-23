@@ -1,5 +1,6 @@
 import {devanagari,myanmar,thai,khmer,laos,sinhala,tibetan} from './tables.js';
-
+export const DEVAPAT=/([ऀ-ॿ]+)/;
+export const DEVAPAT_G=/([ऀ-ॿ]+)/g;
 const inverseTable=tbl=>{
     const out={};
     for (let key in tbl) out[ tbl[key] ]=key;
@@ -65,25 +66,30 @@ export const toIndicXML=(content,lang='hi')=>{
 }
 
 //for importing CST
+export const fromDevanagariWord=w=>{ //w must me a pure devanagari word
+    let out='';
+    for (let i=0;i<w.length;i++) {
+        const ch=devanagari[w[i]];
+        if (typeof ch=='undefined') {
+            console.log('wrong deva char',w[i],w);
+        } else {
+            out+=ch;                   
+        }
+    }
+    return out;
+}
 export const fromDevanagari=content=>{
-    const tokens=content.split(/([ऀ-ॿ]+)/);
+    const tokens=content.split(DEVAPAT);
     let out='';
     tokens.forEach(tk => {
-        if (!tk.match(/[ऀ-ॿ]/)) {
+        if (!tk.match(DEVAPAT)) {
             out+=tk;
         } else {
-            for (let i=0;i<tk.length;i++) {
-                const ch=devanagari[tk[i]];
-                if (typeof ch=='undefined') {
-                    console.log('wrong char',tk[i],tk);
-                } else {
-                    out+=ch;                   
-                }
-            }
+            out+=fromDevanagariWord(tk)
         }
     });
     out=out.replace(/\u200d/g,'');
-    out=out.replace(/[ऀ-ॿ]/g,''); //drop all unknown
+    out=out.replace(DEVAPAT_G,''); //drop all unknown
     return out;
 }
 

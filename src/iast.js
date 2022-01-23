@@ -1,6 +1,7 @@
 export const isRomanized=str=>{
     return (!!str.match(romanized_charset));
 }
+import {doParts} from './utils.js'
 
 const romanized_charset=/([aāiīuūenoṃcvkbdtphḍṭñṅṇsjgymrlḷ]+)/i;
 export const breakIASTSyllable=str=>{
@@ -32,6 +33,9 @@ const beginVowels={
     'a':'a','ā':'aA','i':'i','ī':'iI','u':'u','ū':'uU','o':'o','e':'e',
 }
 const i2p={
+    // '|':'|', //allow | in a word, convert from । ॥ and 
+    '।':'।','॥':'॥', //as it is
+
     'k':'k','t':'t','ñ':'Y','ṅ':'N','ṇ':'N','ḍ':'F','ṭ':'W','p':'p','c':'c','j':'j',
     's':'s','b':'b','y':'y','g':'g','d':'d','h':'h','m':'m','l':'l','v':'v','r':'r','n':'n',
     'ḷ':'L',
@@ -93,6 +97,21 @@ const i2p={
     'py':'pVy',
     'yv':'yVv',
     'ṭy':'WVy',
+    'bhy':'BVy',
+    'tthy':'tVTVy', //titthyā
+    'tn':'tVn', //ratnapīṭha
+    'dhv':'DVv', //Madhvāsava
+    'dhy':'DVy', //sādhya
+    'ny':'nVy', //Nyāsa
+    'gv' :'gVv',//gvākappa
+    'nky' :'nVkVy',//Mālunkyāputta
+    'hy':'hVy', //corehyahāriya
+    'ṇv':'NVv',//Ṇvarabhakkha
+    'kkhy':'kVKVy',//alakkhyā
+    'ntr':'nVtVr',//tantra 
+    'bhm':'BVm',//Subhmā , only found in s0513m note of 442. Saṅkhajātakaṃ
+    'dy':'dVy',//rare yadyāyaṃ only found in s0514  "ja534:43.3":
+    'sp':'sVp',//rare Vanaspatīni only found in s0514 <note>वनस्पतीनि च (सी॰ पी॰), वनप्पतिञ्‍च (स्या॰ क॰)</note>
 }
 const p2i={};
 for (let key in i2p) p2i[i2p[key]]=key;
@@ -146,80 +165,64 @@ export const fromIAST=(input,opts={})=>{
     }
     return out;
 }
-
-export const toIAST=(str,opts={})=>{
-    let out='';
-    const convert=p=>{
-        let ch='',out='',i=0;
-        ch=p[0];
-        const leadv='aeiou'.indexOf(ch);
-        if (leadv>-1) {
-            if (p[0]=='a'&&p[1]=='A') {out+='ā';i++}
-            else if (p[0]=='i'&&p[1]=='I') {out+='ī';i++}
-            else if (p[0]=='u'&&p[1]=='U') {out+='ū';i++}
-            else out+=ch;
-            i++;
-            ch=p[i];
-        } 
-        let needvowel=false;
-        while (i<p.length) {
-            ch=p[i];
-            //allow sauddesaṁ
-            //if ('aeiou'.indexOf(ch)>-1) return out+'!'+p.substr(i);
-            const v='MAEIOU'.indexOf(ch);
-            if (v>-1) {
-                if (v==0&&needvowel) out+='a'; // ṃ need 'a'
-                if (p[i+1]=='I') {i++;out+='ī'}
-                else if (p[i+1]=='U') {i++;out+='ū'}
-                else out+='ṃāeiou'[v]||'';
-                i++; 
-                needvowel=false;
-            }  else { 
-                if (needvowel) out+='a';
-                let cons=p[i];
-                if (cons=='V') return out+'!1'+p.substr(i); //invalid
-                
-                while (i<p.length&& p[i+1]=='V') {
-                    cons+='V'+p[i+2];
-                    needvowel=true;
-                    i+=2;
-                }
-                const c=p2i[cons];
-                if (!c) {
-                    return out+'!2'+p.substr(i);
+export const toIASTWord=p=>{
+    let ch='',out='',i=0;
+    ch=p[0];
+    const leadv='aeiou'.indexOf(ch);
+    if (leadv>-1) {
+        if (p[0]=='a'&&p[1]=='A') {out+='ā';i++}
+        else if (p[0]=='i'&&p[1]=='I') {out+='ī';i++}
+        else if (p[0]=='u'&&p[1]=='U') {out+='ū';i++}
+        else out+=ch;
+        i++;
+        ch=p[i];
+    } 
+    let needvowel=false;
+    while (i<p.length) {
+        ch=p[i];
+        //allow sauddesaṁ
+        //if ('aeiou'.indexOf(ch)>-1) return out+'!'+p.substr(i);
+        const v='MAEIOU'.indexOf(ch);
+        if (v>-1) {
+            if (v==0&&needvowel) out+='a'; // ṃ need 'a'
+            if (p[i+1]=='I') {i++;out+='ī'}
+            else if (p[i+1]=='U') {i++;out+='ū'}
+            else out+='ṃāeiou'[v]||'';
+            i++; 
+            needvowel=false;
+        }  else { 
+            if (needvowel) out+='a';
+            let cons=p[i];
+            if (cons=='V') return out+'!1'+p; //invalid
+            
+            while (i<p.length&& p[i+1]=='V') {
+                cons+='V'+p[i+2];
+                needvowel=true;
+                i+=2;
+            }
+            const c=p2i[cons];
+            if (!c ) {
+                if (isNaN(parseInt(cons))) {
+                    return out+'!2'+p;
                 } else {
-                    needvowel='aeiou'.indexOf(c)==-1;
-                    if (c=='a' && p[i+1]=='A') {
-                        i++;
-                        out+='ā'
-                    } else {
-                        out+=c;
-                    }
-                    i++;
+                    return out+cons; //pure number, as it is
                 }
-
-            }
-        }
-        if (needvowel) out+='a';
-        return out;
-    }
-
-    const parts=(opts.format==='xml')?str.split(/(<[^<]+>)/):[str];
-    for (let j=0;j<parts.length;j++) {
-        if (parts[j][0]=='<') {
-            out+=parts[j];
-            continue;
-        }
-        const units=parts[j].split(/([a-zA-Z]+)/);
-        units.forEach(s=>{
-            const m=s.match(/[a-zA-Z]/);
-            if (!m) {
-                out+=s;
             } else {
-                out+=convert(s);    
+                needvowel='aeiou।॥'.indexOf(c)==-1;
+                if (c=='a' && p[i+1]=='A') {
+                    i++;
+                    out+='ā'
+                } else {
+                    out+=c;
+                }
+                i++;
             }
-        })
-    }
 
+        }
+    }
+    if (needvowel) out+='a';
     return out;
+}
+export const toIAST=str=>{
+    return doParts(str,/([a-zA-Z]+)/,toIASTWord)
 }

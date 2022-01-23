@@ -96,6 +96,13 @@ var providentpali = (function (exports) {
         'py':'pVy',
         'yv':'yVv',
         'ṭy':'WVy',
+        'bhy':'BVy',
+        'tthy':'tVTVy', //titthyā
+        'tn':'tVn', //ratnapīṭha
+        'dhv':'DVv', //Madhvāsava
+        'dhy':'DVy', //sādhya
+        'ny':'nVy', //Nyāsa
+
     };
     const p2i={};
     for (let key in i2p) p2i[i2p[key]]=key;
@@ -180,7 +187,7 @@ var providentpali = (function (exports) {
                 }  else { 
                     if (needvowel) out+='a';
                     let cons=p[i];
-                    if (cons=='V') return out+'!1'+p.substr(i); //invalid
+                    if (cons=='V') return out+'!1'+p; //invalid
                     
                     while (i<p.length&& p[i+1]=='V') {
                         cons+='V'+p[i+2];
@@ -189,7 +196,7 @@ var providentpali = (function (exports) {
                     }
                     const c=p2i[cons];
                     if (!c) {
-                        return out+'!2'+p.substr(i);
+                        return out+'!2'+p;
                     } else {
                         needvowel='aeiou'.indexOf(c)==-1;
                         if (c=='a' && p[i+1]=='A') {
@@ -228,7 +235,7 @@ var providentpali = (function (exports) {
     };
 
     const devanagari={
-        'क':'k','ख':'K','ग':'g', 'घ':'G','ङ':'NG', 'ह':'h',
+        'क':'k','ख':'K','ग':'g', 'घ':'G','ङ':'N', 'ह':'h',
         'च':'c','छ':'C','ज':'j','झ':'J','ञ':'Y','य':'y','श':'Z',
         'ट':'W','ठ':'X','ड':'F','ढ':'Q','ण':'N','र':'r','ष':'S',
         'त':'t','थ':'T','द':'d','ध':'D','न':'n','ल':'l','स':'s',
@@ -246,7 +253,7 @@ var providentpali = (function (exports) {
     };
 
     const sinhala={
-       'ක':'k','ඛ':'K','ග':'g', 'ඝ':'G','ඞ':'NG', 'හ':'h',
+       'ක':'k','ඛ':'K','ග':'g', 'ඝ':'G','ඞ':'N', 'හ':'h',
        'ච':'c','ඡ':'C','ජ':'j','ඣ':'J','ඤ':'Y','ය':'y','श':'Z',
        'ට':'W','ඨ':'X','ඩ':'F','ඪ':'Q','ණ':'N','ර':'r','ष':'S', 
        'ත':'t','ථ':'T','ද':'d','ධ':'D','න':'n','ල':'l','ස':'s', 
@@ -257,7 +264,7 @@ var providentpali = (function (exports) {
     };
 
     const myanmar={
-        'က':'k','ခ':'K','ဂ':'g', 'ဃ':'G','င':'NG', 'ဟ':'h',
+        'က':'k','ခ':'K','ဂ':'g', 'ဃ':'G','င':'N', 'ဟ':'h',
         'စ':'c','ဆ':'C','ဇ':'j','ဈ':'J','ဉ':'Y','ယ':'y','श':'Z',
         'ဋ':'W','ဌ':'X','ဍ':'F','ဎ':'Q','ဏ':'N','ရ':'r','ष':'S',
         'တ':'t','ထ':'T','ဒ':'d','ဓ':'D','န':'n','လ':'l','သ':'s',
@@ -269,7 +276,7 @@ var providentpali = (function (exports) {
         ' ်':'', //ASAT
     };
     const thai={
-        'ก':'k','ข':'K','ค':'g', 'ฆ':'G','ง':'NG', 'ห':'h', 
+        'ก':'k','ข':'K','ค':'g', 'ฆ':'G','ง':'N', 'ห':'h', 
         'จ':'c','ฉ':'C','ช':'j','ฌ':'J','ญ':'Y','ย':'y','श':'Z',
         'ฏ':'W','ฐ':'X','ฑ':'F','ฒ':'Q','ณ':'N','ร':'r','ष':'S',
         'ต':'t','ถ':'T','ท':'d','ธ':'D','น':'n','ล':'l','ส':'s',
@@ -291,7 +298,7 @@ var providentpali = (function (exports) {
           '០':'0','១':'1','២':'2','៣':'3','៤':'4','៥':'5','៦':'6','៧':'7','៨':'8','៩':'9',
     };
     const laos={
-        'ກ':'k','ຂ':'K','ຄ':'g', 'ຆ':'G','ງ':'NG', 'ຫ':'h',
+        'ກ':'k','ຂ':'K','ຄ':'g', 'ຆ':'G','ງ':'N', 'ຫ':'h',
         'ຈ':'c','ຉ':'C','ຊ':'j','ຌ':'J','ຎ':'Y','ຍ':'y','श':'Z',
         'ຏ':'W','ຐ':'X','ຑ':'F','ຒ':'Q','ຓ':'N','ຣ':'r','ष':'S',
         'ຕ':'t','ຖ':'T','ທ':'d','ຘ':'D','ນ':'n','ລ':'l','ສ':'s',
@@ -302,7 +309,7 @@ var providentpali = (function (exports) {
          '໐':'0','໑':'1','໒':'2','໓':'3','໔':'4','໕':'5','໖':'6','໗':'7','໘':'8','໙':'9',
     };
     const tibetan={
-        'ཀ':'k','ཁ':'K','ག':'g', 'གྷ':'G','ང':'NG', 'ཧ':'h',
+        'ཀ':'k','ཁ':'K','ག':'g', 'གྷ':'G','ང':'N', 'ཧ':'h',
         'ཙ':'c','ཚ':'C','ཛ':'j','ཛྷ':'J','ཉ':'Y','ཡ':'y','श':'Z',
         'ཊ':'W','ཋ':'X','ཌ':'F','ཌྷ':'Q','ཎ':'N','ར':'r','ष':'S',
         'ཏ':'t','ཐ':'T','ད':'d','དྷ':'D','ན':'n','ལ':'l','ས':'s',
@@ -342,6 +349,7 @@ var providentpali = (function (exports) {
         lo:inverseTable(laos),       si:inverseTable(sinhala),
         tb:inverseTable(tibetan) //,    cy:inverseTable(cyrillic),
     };
+    const enumTransliteration=()=>Object.keys(tables);
     const convertToIndic=(content,table)=>{ //pure text, no tag
         let i=0,out=[];    while (i<content.length) {
             let o= table[ (content[i]+content[i+1])];
@@ -371,21 +379,67 @@ var providentpali = (function (exports) {
         return table?convertToIndic(content,table):content;
     };
 
+    const toIndicXML=(content,lang='hi')=>{
+        let out='';
+        const parts=content.split(/(<[^<]+>)/);
+        for (let j=0;j<parts.length;j++) {
+            if (parts[j][0]=='<') {
+                out+=parts[j];
+                continue;
+            }
+            const units=parts[j].split(/([a-zA-Z]+)/);
+            units.forEach(s=>{
+                const m=s.match(/[a-zA-Z]/);
+                if (!m) {
+                    out+=s;
+                } else {
+                    out+=toIndic(s,lang);    
+                }
+            });
+        }
+        return out;
+    };
+
+    //for importing CST
+    const fromDevanagari=content=>{
+        const tokens=content.split(/([ऀ-ॿ]+)/);
+        let out='';
+        tokens.forEach(tk => {
+            if (!tk.match(/[ऀ-ॿ]/)) {
+                out+=tk;
+            } else {
+                for (let i=0;i<tk.length;i++) {
+                    const ch=devanagari[tk[i]];
+                    if (typeof ch=='undefined') {
+                        console.log('wrong char',tk[i],tk);
+                    } else {
+                        out+=ch;                   
+                    }
+                }
+            }
+        });
+        out=out.replace(/\u200d/g,'');
+        out=out.replace(/[ऀ-ॿ]/g,''); //drop all unknown
+        return out;
+    };
+
     const reg_syllable=/([a-zBKGNCDFHJLPQRSTWXYZ](V[a-zKGNCDFHJLPQRSTWXYZ])*[AEIUOM]*)/g;
     const breakSyllable=str=>{
         return str.split(reg_syllable);
     };
 
-    const provident2indic=(str,script='')=>{
+    const xml2indic=(str,script='')=>{
         if (!script) return str;
-        if (script=='iast') return toIAST(str);
-        else return toIndic(str,script)
+        if (script==='iast'|| script==='romn' || script==='ro') return toIAST(str,{format:'xml'});
+        else return toIndicXML(str,script)
     };
 
     exports.breakSyllable = breakSyllable;
+    exports.enumTransliteration = enumTransliteration;
+    exports.fromDevanagari = fromDevanagari;
     exports.fromIAST = fromIAST;
-    exports.provident2indic = provident2indic;
     exports.toIAST = toIAST;
+    exports.xml2indic = xml2indic;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
