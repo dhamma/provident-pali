@@ -12,6 +12,7 @@ const tables={
     lo:inverseTable(laos),       si:inverseTable(sinhala),
     tb:inverseTable(tibetan) //,    cy:inverseTable(cyrillic),
 }
+export const enumTransliteration=()=>Object.keys(tables);
 export const convertToIndic=(content,table)=>{ //pure text, no tag
     let i=0,out=[];;
     while (i<content.length) {
@@ -42,6 +43,27 @@ export const toIndic=(content,lang='hi')=>{
     return table?convertToIndic(content,table):content;
 }
 
+export const toIndicXML=(content,lang='hi')=>{
+    let out='';
+    const parts=content.split(/(<[^<]+>)/);
+    for (let j=0;j<parts.length;j++) {
+        if (parts[j][0]=='<') {
+            out+=parts[j];
+            continue;
+        }
+        const units=parts[j].split(/([a-zA-Z]+)/);
+        units.forEach(s=>{
+            const m=s.match(/[a-zA-Z]/);
+            if (!m) {
+                out+=s;
+            } else {
+                out+=toIndic(s,lang);    
+            }
+        })
+    }
+    return out;
+}
+
 //for importing CST
 export const fromDevanagari=content=>{
     const tokens=content.split(/([ऀ-ॿ]+)/);
@@ -66,4 +88,4 @@ export const fromDevanagari=content=>{
 }
 
 
-export default {convertToIndic,toIndic,fromDevanagari}
+export default {convertToIndic,toIndic,toIndicXML,fromDevanagari,enumTransliteration}

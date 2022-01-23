@@ -1,10 +1,10 @@
 ﻿import {fromIAST,toIAST} from "./src/iast.js"
 export * from "./src/ipa.js"
-import {toIndic,fromDevanagari} from "./src/indic.js"
+import {toIndicXML,fromDevanagari,enumTransliteration} from "./src/indic.js"
 export * from "./src/utils.js"
-export const provident2indic=(str,script='')=>{
+export const xml2indic=(str,script='')=>{
     if (!script) return str;
-    if (script=='iast') return toIAST(str);
-    else return toIndic(str,script)
+    if (script=='iast' || script=='romn') return toIAST(str,{format:'xml'});
+    else return toIndicXML(str,script)
 }
-export {fromIAST,toIAST,fromDevanagari};
+export {fromIAST,toIAST,fromDevanagari,enumTransliteration};
