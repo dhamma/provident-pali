@@ -69,7 +69,8 @@ export const toIndicXML=(content,lang='hi')=>{
 export const fromDevanagariWord=w=>{ //w must me a pure devanagari word
     let out='';
     for (let i=0;i<w.length;i++) {
-        const ch=devanagari[w[i]];
+        let ch=devanagari[w[i]];
+        if (ch=='NG') ch='N'; //ङ ण share same code
         if (typeof ch=='undefined') {
             console.log('wrong deva char',w[i],w);
         } else {
