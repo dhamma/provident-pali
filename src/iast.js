@@ -2,7 +2,7 @@ export const isRomanized=str=>{
     return (!!str.match(romanized_charset));
 }
 import {doParts} from './utils.js'
-
+export const RO_CHARS="aāiīuūenoṃcvkbdtphḍṭñṅṇsjgymrlḷ";
 const romanized_charset=/([aāiīuūenoṃcvkbdtphḍṭñṅṇsjgymrlḷ]+)/i;
 export const breakIASTSyllable=str=>{
     str=str.toLowerCase();
@@ -146,7 +146,7 @@ export const fromIAST=(input,opts={})=>{
     else if (typeof parts=='string') parts=[input];
     let out='';
     for (let j=0;j<parts.length;j++) {
-        if (parts[j][0]=='<') {
+        if (parts[j][0]==='<') {
             out+=parts[j];
             continue;
         }
@@ -157,8 +157,7 @@ export const fromIAST=(input,opts={})=>{
         for (let i=0;i<words.length;i++) {
             for (let j=0;j<words[i].length;j++) {
                 const r=convertIASTSyllable(words[i][j],j==0);
-                if (r[0]=='!') return s+r;
-                else s+=r;
+                s+=r;
             }
         }
         out+=s;
@@ -193,7 +192,7 @@ export const toIASTWord=p=>{
         }  else { 
             if (needvowel) out+='a';
             let cons=p[i];
-            if (cons=='V') return out+'!1'+p; //invalid
+            if (cons=='V') return out+'??1'+p; //invalid
             
             while (i<p.length&& p[i+1]=='V') {
                 cons+='V'+p[i+2];
@@ -203,7 +202,7 @@ export const toIASTWord=p=>{
             const c=p2i[cons];
             if (!c ) {
                 if (isNaN(parseInt(cons))) {
-                    return out+'!2'+p;
+                    return out+'??2'+p;
                 } else {
                     return out+cons; //pure number, as it is
                 }
@@ -224,5 +223,5 @@ export const toIASTWord=p=>{
     return out;
 }
 export const toIAST=str=>{
-    return doParts(str,/([a-zA-Z]+)/,toIASTWord)
+    return doParts(str,/([a-zA-Z]+)/,toIASTWord).replace(/।/g,'.').replace(/॥/g,'.')
 }
