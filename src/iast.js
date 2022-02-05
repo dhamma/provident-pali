@@ -131,7 +131,7 @@ export const convertIASTSyllable=(syl,begin)=>{
                 out+=beginVowels[v]+(niggatha?'M':'')
             }
         } else {
-            return '!'+syl;
+            return '??'+syl;
         }
     } else {
         return syl;
