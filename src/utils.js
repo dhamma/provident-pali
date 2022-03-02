@@ -4,6 +4,7 @@ export const breakSyllable=str=>{
 }
 
 export const doParts=(str,charpat, onPart)=>{
+    if (!str) return '';
     const parts=str.split(/(<[^<]+>)/);
     let out='';
     for (let j=0;j<parts.length;j++) {

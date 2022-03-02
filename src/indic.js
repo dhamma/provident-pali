@@ -15,7 +15,8 @@ const tables={
 }
 export const enumTransliteration=()=>Object.keys(tables);
 export const convertToIndic=(content,table)=>{ //pure text, no tag
-    let i=0,out=[];;
+    let i=0,out=[];
+    if (!content) return '';
     while (i<content.length) {
         let o= table[ (content[i]+content[i+1])]
         if (o) {
