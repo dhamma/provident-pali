@@ -7,6 +7,7 @@ var providentpali = (function (exports) {
     };
 
     const doParts=(str,charpat, onPart)=>{
+        if (!str) return '';
         const parts=str.split(/(<[^<]+>)/);
         let out='';
         for (let j=0;j<parts.length;j++) {
@@ -30,7 +31,7 @@ var providentpali = (function (exports) {
     const isRomanized=str=>{
         return (!!str.match(romanized_charset));
     };
-
+    const RO_CHARS="aāiīuūenoṃcvkbdtphḍṭñṅṇsjgymrlḷ";
     const romanized_charset=/([aāiīuūenoṃcvkbdtphḍṭñṅṇsjgymrlḷ]+)/i;
     const breakIASTSyllable=str=>{
         str=str.toLowerCase();
@@ -159,7 +160,7 @@ var providentpali = (function (exports) {
                     out+=beginVowels[v]+(niggatha?'M':'');
                 }
             } else {
-                return '!'+syl;
+                return '??'+syl;
             }
         } else {
             return syl;
@@ -174,7 +175,7 @@ var providentpali = (function (exports) {
         else if (typeof parts=='string') parts=[input];
         let out='';
         for (let j=0;j<parts.length;j++) {
-            if (parts[j][0]=='<') {
+            if (parts[j][0]==='<') {
                 out+=parts[j];
                 continue;
             }
@@ -185,8 +186,7 @@ var providentpali = (function (exports) {
             for (let i=0;i<words.length;i++) {
                 for (let j=0;j<words[i].length;j++) {
                     const r=convertIASTSyllable(words[i][j]);
-                    if (r[0]=='!') return s+r;
-                    else s+=r;
+                    s+=r;
                 }
             }
             out+=s;
@@ -221,7 +221,7 @@ var providentpali = (function (exports) {
             }  else { 
                 if (needvowel) out+='a';
                 let cons=p[i];
-                if (cons=='V') return out+'!1'+p; //invalid
+                if (cons=='V') return out+'??1'+p; //invalid
                 
                 while (i<p.length&& p[i+1]=='V') {
                     cons+='V'+p[i+2];
@@ -231,7 +231,7 @@ var providentpali = (function (exports) {
                 const c=p2i[cons];
                 if (!c ) {
                     if (isNaN(parseInt(cons))) {
-                        return out+'!2'+p;
+                        return out+'??2'+p;
                     } else {
                         return out+cons; //pure number, as it is
                     }
@@ -252,16 +252,16 @@ var providentpali = (function (exports) {
         return out;
     };
     const toIAST=str=>{
-        return doParts(str,/([a-zA-Z]+)/,toIASTWord)
+        return doParts(str,/([a-zA-Z]+)/,toIASTWord).replace(/।/g,'.').replace(/॥/g,'.')
     };
 
     const devanagari={
-        'क':'k','ख':'K','ग':'g', 'घ':'G','ङ':'NG', 'ह':'h', //
+        'क':'k','ख':'K','ग':'g', 'घ':'G','ङ':'NG', 'ह':'h', // NG 會變為 provident 的 N, 不能重覆故(做反向表時val 變key)
         'च':'c','छ':'C','ज':'j','झ':'J','ञ':'Y','य':'y','श':'Z',
         'ट':'W','ठ':'X','ड':'F','ढ':'Q','ण':'N','र':'r','ष':'S',
         'त':'t','थ':'T','द':'d','ध':'D','न':'n','ल':'l','स':'s',
         'प':'p','फ':'P','ब':'b','भ':'B','म':'m','व':'v','ळ':'L','ं':'M',
-        '॰':'',//use only by pe...
+        '॰':'',//abbreviation use only by pe...and inside note (版本略符)
         'अ':'a','इ':'i','उ':'u','ए':'e','ओ':'o','आ':'aA','ई':'iI','ऊ':'uU','ऐ':'ai','औ':'au',
         'ा':'A','ि':'I','ी':'II','ु':'U','ू':'UU','े':'E','ो':'O', 
         '्':'V', //virama , 連接下個輔音。
@@ -376,7 +376,9 @@ var providentpali = (function (exports) {
     };
     const enumTransliteration=()=>Object.keys(tables);
     const convertToIndic=(content,table)=>{ //pure text, no tag
-        let i=0,out=[];    while (i<content.length) {
+        let i=0,out=[];
+        if (!content) return '';
+        while (i<content.length) {
             let o= table[ (content[i]+content[i+1])];
             if (o) {
                 i++;
@@ -459,12 +461,20 @@ var providentpali = (function (exports) {
         if (script==='iast'|| script==='romn' || script==='ro') return toIAST(str);
         else return toIndicXML(str,script)
     };
+    const offtext2indic=(str,script='')=>{
+        if (!script) return str;
+        if (script==='iast'|| script==='romn' || script==='ro') return toIAST(str);
+        else return toIndic(str,script)
+
+    };
     const deva2IAST=(buf,onError)=>{ //for cst4
         buf=buf.replace(/\u200d/g,''); //remove zero width joiner
         let out=doParts(buf,DEVAPAT,(deva)=>{
             const prov=fromDevanagariWord(deva);
-            const iast=toIASTWord(prov);
-            if (onError&&iast.indexOf('!') > -1&&isNaN(parseInt(prov))) {
+            const num=parseInt(prov);
+            if (!isNaN(num) && num.toString()==prov) return prov;
+            let iast=toIASTWord(prov);
+            if (onError&&iast.indexOf('??') > -1) {
                 onError(deva,prov);
             }
             return iast;
@@ -472,11 +482,13 @@ var providentpali = (function (exports) {
         return out;
     };
 
+    exports.RO_CHARS = RO_CHARS;
     exports.breakSyllable = breakSyllable;
     exports.deva2IAST = deva2IAST;
     exports.enumTransliteration = enumTransliteration;
     exports.fromDevanagari = fromDevanagari;
     exports.fromIAST = fromIAST;
+    exports.offtext2indic = offtext2indic;
     exports.toIAST = toIAST;
     exports.xml2indic = xml2indic;
 
