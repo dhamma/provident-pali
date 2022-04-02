@@ -4,6 +4,4 @@ glyphstudio
 *.svg
 *.cmd
 old
-src
 backup
-consonant.js
