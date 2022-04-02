@@ -222,6 +222,8 @@ export const toIASTWord=p=>{
     if (needvowel) out+='a';
     return out;
 }
-export const toIAST=str=>{
-    return doParts(str,/([a-zA-Z]+)/,toIASTWord).replace(/।/g,'.').replace(/॥/g,'.')
+export const toIAST=parts=>{
+    if (typeof parts==='string') parts=str.split(/(<[^<]+>)/);
+    return doParts(parts,/([a-zA-Z]+)/,toIASTWord).replace(/।/g,'.').replace(/॥/g,'.')
 }
+

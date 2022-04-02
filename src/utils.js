@@ -3,12 +3,12 @@ export const breakSyllable=str=>{
     return str.split(reg_syllable);
 }
 
-export const doParts=(str,charpat, onPart)=>{
-    if (!str) return '';
-    const parts=str.split(/(<[^<]+>)/);
+export const doParts=(parts,charpat, onPart)=>{
+
     let out='';
     for (let j=0;j<parts.length;j++) {
-        if (parts[j][0]=='<') {
+        if (!parts[j]) continue;
+        if (parts[j][0]=='<' || parts[j][0]=='^') {
             out+=parts[j];
             continue;
         }
