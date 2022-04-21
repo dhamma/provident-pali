@@ -4,6 +4,7 @@ export const isRomanized=str=>{
 import {doParts} from './utils.js'
 export const RO_CHARS="aāiīuūenoṃcvkbdtphḍṭñṅṇsjgymrlḷ";
 const romanized_charset=/([aāiīuūenoṃcvkbdtphḍṭñṅṇsjgymrlḷ]+)/i;
+
 export const breakIASTSyllable=str=>{
     str=str.toLowerCase();
     const words=str.split(romanized_charset);
@@ -223,7 +224,8 @@ export const toIASTWord=p=>{
     return out;
 }
 export const toIAST=parts=>{
-    if (typeof parts==='string') parts=str.split(/(<[^<]+>)/);
+	if (!parts) return '';
+    if (typeof parts==='string') parts=parts.split(/(<[^<]+>)/);
     return doParts(parts,/([a-zA-Z]+)/,toIASTWord).replace(/।/g,'.').replace(/॥/g,'.')
 }
 
