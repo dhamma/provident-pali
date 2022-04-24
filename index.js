@@ -1,7 +1,7 @@
 ﻿import {fromIAST,toIAST,toIASTWord,RO_CHARS} from "./src/iast.js"
 export * from "./src/ipa.js"
 import {toIndicXML,toIndic,fromDevanagari,fromDevanagariWord,enumTransliteration,DEVAPAT} from "./src/indic.js"
-
+import {untease} from './src/teaser.js'
 import { doParts ,breakSyllable } from "./src/utils.js"
 export const xml2indic=(str,script='')=>{
     if (!script) return str;
@@ -28,4 +28,4 @@ export const deva2IAST=(buf,onError)=>{ //for cst4
     });
     return out;
 }
-export {fromIAST,toIAST,fromDevanagari,enumTransliteration,breakSyllable,RO_CHARS};
+export {fromIAST,toIAST,fromDevanagari,enumTransliteration,breakSyllable,RO_CHARS,untease};

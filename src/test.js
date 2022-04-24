@@ -31,6 +31,11 @@ let test=0,pass=0;
 
 // pass+=toIAST(fromIAST('aṭṭhapanātiādi'))==='aṭṭhapanātiādi';test++;
 
+
+pass+=fromIAST('pad')=='pdV';test++;
+pass+=toIAST('pdV')=='pad';test++;
+
+
 console.log(fromIAST('veḷuādayo'), toIAST('vELUaAdyO'));
 
 pass+=toIAST(fromIAST('veḷuādayo'))=='veḷuādayo';test++;

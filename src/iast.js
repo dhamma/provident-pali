@@ -28,10 +28,10 @@ export const breakIASTSyllable=str=>{
 }
 const Vowels={
     '':'',
-    'a':'','ā':'A','i':'I','ī':'II','u':'U','ū':'UU','e':'E','o':'O'
+    'a':'','ā':'A','i':'I','ī':'IA','u':'U','ū':'UA','e':'E','o':'O'
 }
 const beginVowels={
-    'a':'a','ā':'aA','i':'i','ī':'iI','u':'u','ū':'uU','o':'o','e':'e',
+    'a':'a','ā':'aA','i':'i','ī':'iA','u':'u','ū':'uA','o':'o','e':'e',
 }
 const i2p={
     // '|':'|', //allow | in a word, convert from । ॥ and 
@@ -120,7 +120,6 @@ for (let key in beginVowels) p2i[beginVowels[key]]=key;
 
 export const convertIASTSyllable=(syl,begin)=>{
     let out='';
-    
     if (isRomanized(syl)) {
         let m=syl.match(/^([kgṅcjñṭḍṇtdnpbylḷhsmrv]*)([aāiīuūeo])(ṃ?)$/);
         if (m) {
@@ -132,7 +131,8 @@ export const convertIASTSyllable=(syl,begin)=>{
                 out+=beginVowels[v]+(niggatha?'M':'')
             }
         } else {
-            return '??'+syl;
+            //return '??'+syl;
+            return syl+'V';
         }
     } else {
         return syl;
@@ -171,13 +171,17 @@ export const toIASTWord=p=>{
     const leadv='aeiou'.indexOf(ch);
     if (leadv>-1) {
         if (p[0]=='a'&&p[1]=='A') {out+='ā';i++}
-        else if (p[0]=='i'&&p[1]=='I') {out+='ī';i++}
-        else if (p[0]=='u'&&p[1]=='U') {out+='ū';i++}
+        else if (p[0]=='i'&&p[1]=='A') {out+='ī';i++}
+        else if (p[0]=='u'&&p[1]=='A') {out+='ū';i++}
         else out+=ch;
         i++;
         ch=p[i];
     } 
-    let needvowel=false;
+    let needvowel=false, noEndingA=false;
+    if (p.charAt(p.length-1)=='V') { 
+        noEndingA=true;
+        p=p.slice(0,p.length-1);
+    }
     while (i<p.length) {
         ch=p[i];
         //allow sauddesaṁ
@@ -185,8 +189,16 @@ export const toIASTWord=p=>{
         const v='MAEIOU'.indexOf(ch);
         if (v>-1) {
             if (v==0&&needvowel) out+='a'; // ṃ need 'a'
-            if (p[i+1]=='I') {i++;out+='ī'}
-            else if (p[i+1]=='U') {i++;out+='ū'}
+            if (p[i+1]=='A') { //long vowel
+                i++;
+                if (v==1) out+='ā' //redundant
+                else if (v==2) out+='ē' //not exist in pali
+                else if (v==3) out+='ī'
+                else if (v==4) out+='ō'  //not exist in pali
+                else if (v==5)out+='ū'
+                else console.log('wrong vowel')
+            }
+            //else if (p[i+1]=='U') {i++;out+='ū'}
             else out+='ṃāeiou'[v]||'';
             i++; 
             needvowel=false;
@@ -202,6 +214,7 @@ export const toIASTWord=p=>{
             }
             const c=p2i[cons];
             if (!c ) {
+
                 if (isNaN(parseInt(cons))) {
                     return out+'??2'+p;
                 } else {
@@ -220,7 +233,7 @@ export const toIASTWord=p=>{
 
         }
     }
-    if (needvowel) out+='a';
+    if (needvowel && !noEndingA) out+='a';
     return out;
 }
 export const toIAST=parts=>{
