@@ -3,18 +3,21 @@ import {fromIAST,toIAST} from './iast.js';
 let pass=0,test=0;
 
 const tests=[
-	// ['ceva',['ca','eva'],'ca+eva'],
-	// ['pāyaṃ',['pi','āyaṃ'],'pi+-āyaṃ'],
-	['pissa',['pi','assa'],'pi-+assa'],
-	// [ 'padopama',['pada','upama'], 'pada+upama'],
-	// ['attūpamā',['atta','upamā'],'atta+1upamā'], //a+u => ū
-	// ['yadidaṃ',['yad','idaṃ'],'yad-idaṃ'],
-	// [ 'otārāpekkho',['otāra','upekkho'],'otāra+2upekkho'], //a+u => ā
-	
-	// ['catūhena',['catu','ahena'],'catu+2ahena']
-
-	// ['apāvuso',['api','āvuso'],'api+āvuso']
-	//[ 'bojjhaṅga', ['bodhi','aṅga'] , 'bodhi+1aṅga']
+	['ceva',['ca','eva'],'ca+eva'],
+	['pāyaṃ',['pi','āyaṃ'],'pi+-āyaṃ'],
+	['pissa',['pi','assa'],'pi-assa'],
+	[ 'padopama',['pada','upama'], 'pada+upama'],
+	['attūpamā',['atta','upamā'],'atta+1upamā'], //a+u => ū
+	['yadidaṃ',['yad','idaṃ'],'yad-idaṃ'],
+	[ 'otārāpekkho',['otāra','upekkho'],'otāra+2upekkho'], //a+u => ā
+	['catūhena',['catu','ahena'],'catu+ahena'] ,//u+a=>ū
+	['atthikassīdha',['atthikassa','idha'],'atthikassa+2idha'],
+	['sāva',['sa','iva'],'sa+1iva'],
+	['mahesi',['maha','isi'],'maha+isi'],
+	['sūdha',['su','idha'],'su+1idha'],
+	['kome',['ku','ime'],'ku+2ime'],
+	['atarīdha',['atari','idha'],'atari+1idha'],
+	[ 'bojjhaṅga', ['bodhi','aṅga'] , 'bodhi-aṅga']
 
 ]
 for (let i=0;i<tests.length;i++) {
