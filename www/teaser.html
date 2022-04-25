@@ -12,7 +12,7 @@
     .message {color:green}
     td {border:silver solid 1px}
     .provident {font: 1.5rem "ProvidentPali"; width:100%;height:10rem}
-    .provident_small{font: 1rem "ProvidentPali";}
+    .provident_small{font: 1.3rem "ProvidentPali";}
     .noprovident {font: 1.5rem "Sans Serif"; width:100%;height:15rem}
     .iast {font-size: 1.5rem ;width:100%;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Lao Pali Regular'}
     .espeak {font-size: 1rem ;width:100%;}
@@ -22,7 +22,7 @@
 <script src="./testphrase.js"></script>
 <script src="./teaser-ui.js"></script>
 <body onLoad="init()">
-	<textarea class='provident' id="output" rows=4 oninput="to_iast()">pd+upm </textarea>
+	<textarea class='provident' id="output" rows=4 oninput="to_iast()">bOjVJNVg bODI-aNVg</textarea>
 	<span onClick="showsutta(event)">
        <button class='btnsutta'>ph1</button>
     </span>
@@ -30,6 +30,69 @@
 
 	<div class='provident_small' id="unteased"></div>
     <div id="unteased_iast"></div>
+<br/><br/>
+factorized:
+    <div class='provident_small'>
+    <span>bO</span><span class="psandhi" s="jVJ">DI⧘a</span><span>NVg</span>
+    <span>atVt</span><span class="psandhi" s="UA">⧘u</span><span>pm</span>
+    <span>pd</span><span class="psandhi" s="O">⧘u</span><span>pm</span>
+    <span>mh</span><span class="psandhi" s="E">⧘i</span><span>sI</span>
+    </div> 
+
+    <div class='provident_small'>
+    <span>bO</span><span class="sandhi" s="DI⧘a"> jVJ</span><span>NVg</span>
+    <span>atVt</span><span class="sandhi" s="⧘u"> UA</span><span>pm</span>
+    <span>pd</span><span class="sandhi" s="⧘u"> O</span><span>pm</span>
+    <span>mh</span><span class="sandhi" s="⧘i"> E</span><span>sI</span>
+    </div> 
+
+    <br/>
+factorized:
+    <div>
+    <span>bo</span><span class="psandhi" s="jjha">dhi⧘a</span><span>ṅga</span>
+    <span>att</span><span class="psandhi" s="ū">a⧘u</span><span>pama</span>
+    <span>pad</span><span class="psandhi" s="o">a⧘u</span><span>pama</span>
+    <span>mah</span><span class="psandhi" s="e">a⧘i</span><span>si</span>
+    <br/>
+    </div>   
+<br/>
+orthograph (only available in IAST:
+    <div>
+    <span>bo</span><span class="sandhi" s="dhi⧘a">jjha</span><span>ṅga</span>
+    <span>att</span><span class="sandhi" s="a⧘u">ū</span><span>pama</span>
+    <span>pad</span><span class="sandhi" s="a⧘u">o</span><span>pama</span>
+    <span>mah</span><span class="sandhi" s="a⧘i">e</span><span>si</span>
+    </div>    
+<br/><br/><br/>
 </body>
+<style>
+.sandhi {border-bottom: brown 1px  solid }
+.sandhi:hover {cursor: pointer;color:rgba(0,0,0,0)}
+.sandhi:hover:before {
+    display:inline-block;
+    width:0px;
+    /*margin-left: -0.3em;
+    margin-right: 0.3em;*/
+    margin-top:-0.5em;
+    vertical-align:top;
+    content:attr(s) ;
+    color: brown;
+    font-size: 0.7em
+}
+
+.psandhi {}
+.psandhi:hover {cursor: pointer;color:rgba(0,0,0,0)}
+.psandhi:hover:before {
+    display:inline-block;
+    width:0px;
+    /*margin-left: -0.5em;*/
+    /*margin-right: 0.5em;*/
+    /*margin-top:-1em;*/
+    /*vertical-align:top;*/
+    content:attr(s) "◃" ;
+    color: brown;
+    /*font-size: 1em;*/
+}
+</style>
 </head>
 </html>
