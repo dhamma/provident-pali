@@ -1,6 +1,6 @@
 ﻿import {fromIAST,toIAST,toIASTWord,RO_CHARS} from "./src/iast.js"
 export * from "./src/ipa.js"
-export * from "./src/compare.js"
+export * from "./src/order.js"
 import {toIndicXML,toIndic,fromDevanagari,fromDevanagariWord,enumTransliteration,DEVAPAT} from "./src/indic.js"
 import { doParts ,breakSyllable } from "./src/utils.js"
 export const xml2indic=(str,script='')=>{
