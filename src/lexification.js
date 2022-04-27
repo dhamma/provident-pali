@@ -9,7 +9,7 @@ import {sbProvident,mbProvident} from './sandhi.js'
   這是詞件式的展開型。
   不考慮連音是否符合規則。
 */
-export const tease=(mborth,lexemes,verbose)=>{
+export const lexify=(mborth,lexemes,verbose)=>{
 	let orth=sbProvident(mborth);
 	let prev=0,	out=[]	,sandhi='',left=''	,cap=false,alpha=false, lexeme='', extra='';
 	for (let i=0;i<lexemes.length;i++) {

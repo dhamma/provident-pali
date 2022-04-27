@@ -1,4 +1,4 @@
-import {tease} from './teaser.js'
+import {lexify} from './lexification.js'
 import {stringifyLex,parseLex,orthOf} from './lex.js'
 import {fromIAST,toIAST} from './iast.js';
 let pass=0,test=0;
@@ -29,7 +29,7 @@ const tests=[
 for (let i=0;i<tests.length;i++) {
 	let [orth, lexemes, testlexstr, testlex ]=tests[i];
 
-	const lex =tease(orth,lexemes);
+	const lex =lexify(orth,lexemes);
 	const lexstr=stringifyLex(lex);
 	const parsed=parseLex(lexstr);
 	test++;
@@ -39,8 +39,8 @@ for (let i=0;i<tests.length;i++) {
 	} else { //verbose mode
 		console.log('fail test #'+i,orth)
 		if (lex.join(',')!==testlex.join(',')){
-			tease(orth,lexemes,true);
-			console.log('tease :',lex );
+			lexify(orth,lexemes,true);
+			console.log('lexify :',lex );
 			console.log('expect:',testlex);
 		}
 		if (lexstr!==testlexstr){
