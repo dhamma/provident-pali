@@ -120,6 +120,7 @@ for (let key in beginVowels) p2i[beginVowels[key]]=key;
 
 export const convertIASTSyllable=(syl,begin)=>{
     let out='';
+
     if (isRomanized(syl)) {
         let m=syl.match(/^([kgṅcjñṭḍṇtdnpbylḷhsmrv]*)([aāiīuūeo])(ṃ?)$/);
         if (m) {
@@ -132,7 +133,12 @@ export const convertIASTSyllable=(syl,begin)=>{
             }
         } else {
             //return '??'+syl;
-            return syl+'V';
+            m=syl.match(/^([kgṅcjñṭḍṇtdnpbylḷhsmrv]*)/);
+            if (m) {
+            	const co=i2p[m[1]];
+            	if (co) out+=co+'V';
+            	else out+='??'+syl;
+        	} else return '??'+syl;
         }
     } else {
         return syl;
@@ -153,7 +159,6 @@ export const fromIAST=(input,opts={})=>{
         }
         const str=parts[j].replace(/ṁ/ig,'ṃ');
         const words=breakIASTSyllable(str);
-
         let s='';
         for (let i=0;i<words.length;i++) {
             for (let j=0;j<words[i].length;j++) {
