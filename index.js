@@ -1,4 +1,4 @@
-﻿import {fromIAST,toIAST,toIASTWord,RO_CHARS} from "./src/iast.js"
+﻿import {fromIAST,toIAST,toIASTWord,RO_CHARS,toIASTOffText} from "./src/iast.js"
 export * from "./src/ipa.js"
 export * from "./src/order.js"
 import {toIndicXML,toIndic,fromDevanagari,fromDevanagariWord,enumTransliteration,DEVAPAT} from "./src/indic.js"
@@ -30,5 +30,5 @@ export const deva2IAST=(buf,onError)=>{ //for cst4
 }
 export const LEXEME_REG_G=/([a-zA-Z]+[\dA-Za-z]*[a-zA-Z]+)/g;
 export const PALIWORD_REG_G=/([a-zA-Z]+)/g;
-export  {fromIAST,toIAST,fromDevanagari,enumTransliteration,breakSyllable,
+export  {fromIAST,toIAST,toIASTOffText,fromDevanagari,enumTransliteration,breakSyllable,
     RO_CHARS};

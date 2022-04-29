@@ -246,4 +246,11 @@ export const toIAST=parts=>{
     if (typeof parts==='string') parts=parts.split(/(<[^<]+>)/);
     return doParts(parts,/([a-zA-Z]+)/,toIASTWord).replace(/।/g,'.').replace(/॥/g,'.')
 }
+//from pitaka/offtext/def.js
+const OFFTAG_REGEX=/(\^[a-z_]+[#@\/\.\:~a-z_\-\d]*)(\[(?:\\.|.)*?\])?/ //標記樣式
+export const toIASTOffText=parts=>{
+    if (!parts) return '';
+    if (typeof parts==='string') parts=parts.split(OFFTAG_REGEX);
+    return doParts(parts,/([a-zA-Z]+)/,toIASTWord).replace(/।/g,'.').replace(/॥/g,'.')
+}
 
