@@ -11,23 +11,26 @@ export const parseLex=(_str,verbose)=>{
 	consumedhead='', //被吃掉的頭
 	extra='';
 
-	const prevLexeme=(idx, last='')=>{
+	const prevLexeme=(idx, last='',join)=>{
 		const len=consumedhead.length;
 		consumedhead='';
 		let lexeme=len?str.slice(prev,prev+len)+'>'+str.slice(prev+len,idx):str.slice(prev,idx);
 		if (lexeme.charAt(0)==='A') lexeme='a'+lexeme;
 		lexeme+=last;
+
 		const nlexeme=NormLexeme[lexeme.replace('>','')];
 		if (nlexeme) {
 				const cnt = samecount(nlexeme,lexeme);
-				if (cnt) {
+				if (cnt&&join) { //only apply when join is not 0
 					lexeme=lexeme.slice(0,cnt)+'<'+lexeme.slice(cnt);
 					extra=nlexeme.slice(cnt);
 				} else {
 					const cnt=sameendcount(nlexeme,lexeme);
-					lexeme=lexeme.replace('>','');
-					lexeme=lexeme.slice(0,lexeme.length-cnt)+'>'+lexeme.slice(lexeme.length-cnt);
-					out[out.length-1]+=nlexeme.slice(0,nlexeme.length-cnt);
+					if (cnt) {
+						lexeme=lexeme.replace('>','');
+						lexeme=lexeme.slice(0,lexeme.length-cnt)+'>'+lexeme.slice(lexeme.length-cnt);
+						out[out.length-1]+=nlexeme.slice(0,nlexeme.length-cnt);
+					}
 				}
 		} 
 		return lexeme;
@@ -37,7 +40,8 @@ export const parseLex=(_str,verbose)=>{
 		// verbose&&console.log('keepLeft',!keepLeft,sandhi)
 		verbose&&console.log('sandhi',sandhi,'join',join,'left',left,'right',right,'rightconsumed',rightconsumed);
 
-		const lexeme=(leftconsumed)?prevLexeme(idx,(idx?'<':'')+left): prevLexeme(idx,left);
+		const lexeme=(leftconsumed)?prevLexeme(idx,(idx&&join?'<':'')+left,join): prevLexeme(idx,left,join);
+		verbose&&console.log('leftconsumed',leftconsumed,jt,left,right,lexeme)
 
 		out.push(lexeme);
 		out.push(extra+sandhi);
@@ -102,9 +106,12 @@ export const orthOf=(lex,verbose)=>{
 
 	//leading a of each lexeme is elided, excerpt the first one
 	const lead_a=lex[0].charAt(0)=='a';
+	
 	let s=(lead_a?'a':'')+lex.map(it=>it!==-1&&it.replace(/<.+$/,'').replace(/^.+>/,'')
 		.replace(/^a/,'').replace(/^([eiuo])/,(m,m1)=>m1.toUpperCase()))
-	.map(it=>NormLexeme[it]||it)
+	.map((it,idx,self)=>( (self[idx+1]&&NormLexeme[it]) ||it))
+	 //change to normLexeme only when sandhi exist 
+	 // ( sambodhi has no sandhi/sambojjha has sandhi), but lexeme is always sambodhi
 	.join('');
 	if (s.match(/^[AEIOU]/)) s=s.charAt(0).toLowerCase()+s.slice(1);
 	return s;

@@ -9,14 +9,8 @@ import {sbProvident,mbProvident} from './sandhi.js'
   這是詞件式的展開型。
   不考慮連音是否符合規則。
 */
-export const lexify=(mborth,lexemes,verbose)=>{
-	let orth=sbProvident(mborth);
-	let prev=0,	out=[]	,sandhi='',left=''	,cap=false,alpha=false, lexeme='', extra='';
-	for (let i=0;i<lexemes.length;i++) {
-		let lx=NormLexeme[lexemes[i]]||lexemes[i];
-
-		lx=sbProvident(lx);
-
+const tryLexeme=(lx,i,orth,prev,verbose)=>{
+		let cap=false,alpha=false;
 		if (lx.slice(0,2)=='aA') {
 			alpha=true; //獨字時多出的 a, parseLex 時補上
 			lx=lx.slice(1);	
@@ -28,18 +22,36 @@ export const lexify=(mborth,lexemes,verbose)=>{
 		}
 
 		let at1=orth.indexOf(lx.slice(0,lx.length-1),prev);//開頭符合
-		let at2=i&&orth.indexOf(lx.slice(1,lx.length-1),prev);//從第2字開始符合
-
+		let at2=-1;
+		if (i) at2=orth.indexOf(lx.slice(1,lx.length-1),prev) //從第2字開始符合
 		verbose&&console.log('lexeme',lx,at1,at2,orth.slice(at1))
-		const plast=lx[lx.length-1];
+		return [at1,at2,cap,alpha,lx]
+}
+export const lexify=(mborth,lexemes,verbose)=>{
+	let orth=sbProvident(mborth);
+	let prev=0,	out=[]	,sandhi='',left=''	,cap=false,alpha=false, lexeme='', extra='',normed=false;
+	for (let i=0;i<lexemes.length;i++) {
+		let lx=sbProvident(lexemes[i]);
+		let at1,at2;
+		[at1,at2,cap,alpha,lx]=tryLexeme(lx,i,orth,prev,verbose);
+		if (at1==-1 && at2==-1) { //no match , try NormLexeme
+			if (NormLexeme[lexemes[i]]) {
+				lx=sbProvident(NormLexeme[lexemes[i]]);
+				normed=true;
+				[at1,at2,cap,alpha,lx]=tryLexeme(lx,i,orth,prev,verbose);
+			}
+		}
+
 		let at=-1;
 		if (~at1) at=at1;
 		else if (~at2 && i) at=at2;
 		if (at==-1) {
 			out.push(-1);//fail marker
-			return out;
+			return out;			
 		}
+		const plast=lx[lx.length-1];
 
+		verbose&&console.log(lx)
 		if (~at1) {
 			let eaten=0;
 			let sandhi=orth.slice(prev,at1);
@@ -98,8 +110,7 @@ export const lexify=(mborth,lexemes,verbose)=>{
 		}
 
 		if(extra) extra='';
-		// out.push(DeNormLexeme[lexeme]||lexeme);
-		if (DeNormLexeme[lexeme]!==lexeme) {
+		if (normed&&DeNormLexeme[lexeme]!==lexeme) {
 			  const dlexeme=DeNormLexeme[lexeme];
 		    out.push(dlexeme||lexeme);
 		    if (dlexeme) {
