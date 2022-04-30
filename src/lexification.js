@@ -14,12 +14,13 @@ export const lexify=(mborth,lexemes,verbose)=>{
 	let prev=0,	out=[]	,sandhi='',left=''	,cap=false,alpha=false, lexeme='', extra='';
 	for (let i=0;i<lexemes.length;i++) {
 		let lx=NormLexeme[lexemes[i]]||lexemes[i];
-		// let lx=lexemes[i]
+
+		lx=sbProvident(lx);
 
 		if (lx.slice(0,2)=='aA') {
 			alpha=true; //獨字時多出的 a, parseLex 時補上
 			lx=lx.slice(1);	
-		} 
+		}
 
 		if (i&&lx.charAt(0).match(/[eiuo]/)) {
 			lx=lx.charAt(0).toUpperCase()+lx.slice(1);
@@ -62,7 +63,6 @@ export const lexify=(mborth,lexemes,verbose)=>{
 				prev+=lx.length-1;
 			}
 		} else if (~at2 && i) {
-			verbose&& console.log('prev',)
 			const samehead=orth.slice(prev,at2+1)===lx.charAt(1);
 			let sandhi=orth.slice(prev,at2);
 			if (!sandhi && !samehead) { 
@@ -92,7 +92,10 @@ export const lexify=(mborth,lexemes,verbose)=>{
 			}
 		}
 		if (cap) lexeme=lexeme.charAt(0).toLowerCase()+lexeme.slice(1);
-		if (alpha) lexeme='a'+lexeme;
+		if (alpha) {
+			lexeme='a'+lexeme;
+			alpha=false;
+		}
 
 		if(extra) extra='';
 		// out.push(DeNormLexeme[lexeme]||lexeme);
@@ -100,8 +103,13 @@ export const lexify=(mborth,lexemes,verbose)=>{
 			  const dlexeme=DeNormLexeme[lexeme];
 		    out.push(dlexeme||lexeme);
 		    if (dlexeme) {
-			    const at=dlexeme.indexOf('<');
+			    let at=dlexeme.indexOf('<');
 					if (at>0) extra=lexeme.slice(at);
+			    at=dlexeme.indexOf('>');
+					if (at>0) { //patch the sandhi before (for udayabbaya)
+						const e=lexeme.slice(0, at );
+						out[out.length-2]+=e;
+					}
 		    }
 		} else {
 				out.push(lexeme);	

@@ -20,17 +20,23 @@ const tests=[
 	['kOmE',['kU','imE'],'kU4imE',['k<U','O','i>mE']],// ['kome',['ku','ime'],'ku+2ime',
 	['atrIAD',['atrI','iD'],'atrI3iD',['atr<I','IA','i>D']],// ['atarīdha',['atari','idha'],'atari+1idha'],
 
-	['bOjVJNVg',['bODI','aNVg'],'bODI2aNVg',['bO<DI','jVJ','a>NVg' ]],// [ 'bojjhaṅga', ['bodhi','aṅga'] , 'bodhi-aṅga']
 	['ctUgVgUN',['ctU','gUN'],'ctU2gUN',['ctU','gVg','g>UN']],//catugguṇaṃ=catu-g-guṇaṃ|catu-g-guṇaṃ
 	['DmVmcVCnVd',['DmVm','CnVd'],'DmVm3CnVd',['DmVm','cVC','C>nVd']],//dhammacchanda=dhamma-c-chanda
 	['idpVpcVcy',['id','pcVcy'],'id3pcVcy',['id','pVp','p>cVcy'] ],// [],//idappaccaya=ida-p-paccaya
-	['pUnbVBvO',['pUn','BvO'],'pUn3BvO',['pUn','bVB','B>vO']]	//punabbhavo=khīṇa-puna-b-bhavo
+	['pUnbVBvO',['pUn','BvO'],'pUn3BvO',['pUn','bVB','B>vO']],	//punabbhavo=khīṇa-puna-b-bhavo
+
+	['FMsmksvAtAtpsrIAMspsmVPsVsEhI',['FMs','mks','vAt','aAtp','srIAMsp','smVPsVsEhI'],
+	'FMs0mks0vAt0aAtp0srIAMsp0smVPsVsEhI',['FMs','','mks','','vAt','','aAtp','','srIAMsp','','smVPsVsEhI']],
+
+	['bOjVJNVg',['bODI','aNVg'],'bODI2aNVg',['bO<DI','jVJ','a>NVg' ]],// [ 'bojjhaṅga', ['bodhi','aṅga'] , 'bodhi-aṅga']
+	['udybVby',['udy','vVyy'],'udy2vVyy',['udy','bVb','vVy>y']]
 ]
 for (let i=0;i<tests.length;i++) {
 	let [orth, lexemes, testlexstr, testlex ]=tests[i];
 
 	const lex =lexify(orth,lexemes);
 	const lexstr=stringifyLex(lex);
+
 	const parsed=parseLex(lexstr);
 	test++;
 	if (lexstr == testlexstr && orth==orthOf(lex) 

@@ -45,4 +45,7 @@ console.log(fromIAST('veḷuādayo'), toIAST('vELUaAdyO'));
 
 pass+=toIAST(fromIAST('veḷuādayo'))=='veḷuādayo';test++;
 // console.log(toIAST(fromIAST('kiccasampattiatthena')));
+
+console.log( fromIAST('abbhā-mattaṃ-iva'))
+
 console.log( `pass:${pass} / test:${test}`);

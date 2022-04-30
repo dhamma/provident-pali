@@ -1,6 +1,6 @@
 import {getRule,getLeft,getRight,getHeadSyl,getTailSyl,getJoinType,
 	ELIDENONE,ELIDELEFT,ELIDERIGHT,ELIDEBOTH,sbProvident,mbProvident} from './sandhi.js'
-import {DeNormLexeme,NormLexeme,samecount} from './lexeme.js'
+import {DeNormLexeme,NormLexeme,samecount,sameendcount} from './lexeme.js'
 /*
   將詞件展開式與字串式的轉換，字串式一定可以展開，反之不然。
   字串式以數字分隔詞件，連音從數字和前後字元，按照規則產生。
@@ -17,17 +17,24 @@ export const parseLex=(_str,verbose)=>{
 		let lexeme=len?str.slice(prev,prev+len)+'>'+str.slice(prev+len,idx):str.slice(prev,idx);
 		if (lexeme.charAt(0)==='A') lexeme='a'+lexeme;
 		lexeme+=last;
-		const nlexeme=NormLexeme[lexeme];
+		const nlexeme=NormLexeme[lexeme.replace('>','')];
 		if (nlexeme) {
 				const cnt = samecount(nlexeme,lexeme);
-				lexeme=cnt?(lexeme.slice(0,cnt)+'<'+lexeme.slice(cnt)):lexeme;
-				extra=nlexeme.slice(cnt);
+				if (cnt) {
+					lexeme=lexeme.slice(0,cnt)+'<'+lexeme.slice(cnt);
+					extra=nlexeme.slice(cnt);
+				} else {
+					const cnt=sameendcount(nlexeme,lexeme);
+					lexeme=lexeme.replace('>','');
+					lexeme=lexeme.slice(0,lexeme.length-cnt)+'>'+lexeme.slice(lexeme.length-cnt);
+					out[out.length-1]+=nlexeme.slice(0,nlexeme.length-cnt);
+				}
 		} 
 		return lexeme;
 	}
 	str.replace(/([a-zA-Z]A?)(\d+)([a-zA-Z]A?)/g,(m,left,jt,right, idx)=>{
 		const {keepLeft,join,sandhi,rightconsumed,leftconsumed}=getJoinType(jt,left,right,verbose);
-		//verbose&&console.log('keepLeft',!keepLeft,sandhi)
+		// verbose&&console.log('keepLeft',!keepLeft,sandhi)
 		verbose&&console.log('sandhi',sandhi,'join',join,'left',left,'right',right,'rightconsumed',rightconsumed);
 
 		const lexeme=(leftconsumed)?prevLexeme(idx,(idx?'<':'')+left): prevLexeme(idx,left);
@@ -36,7 +43,6 @@ export const parseLex=(_str,verbose)=>{
 		out.push(extra+sandhi);
 		extra='';
 		consumedhead=rightconsumed?right:'';
-		
 		verbose&&console.log('lconsumed',leftconsumed,'rconsumed',rightconsumed,left,'consumedhead',consumedhead);
 
 		if (join===ELIDERIGHT) idx-=left.length; //沒用到的左邊，補回長度
@@ -50,12 +56,14 @@ export const parseLex=(_str,verbose)=>{
 	})
 
 	out.push(prevLexeme(str.length))
+
 	return out.map(mbProvident);
 }
 
 export const stringifyLex=(lex,verbose)=>{
 	let out='';
 	if (lex.length<3) return ''
+  if (lex.length%2==0) return '';
 	for (let i=0;i<lex.length;i++) {
 		if (i%2) {
 			const sandhi=lex[i]||'';
@@ -94,7 +102,7 @@ export const orthOf=(lex,verbose)=>{
 
 	//leading a of each lexeme is elided, excerpt the first one
 	const lead_a=lex[0].charAt(0)=='a';
-	let s=(lead_a?'a':'')+lex.map(it=>it.replace(/<.+$/,'').replace(/^.+>/,'')
+	let s=(lead_a?'a':'')+lex.map(it=>it!==-1&&it.replace(/<.+$/,'').replace(/^.+>/,'')
 		.replace(/^a/,'').replace(/^([eiuo])/,(m,m1)=>m1.toUpperCase()))
 	.map(it=>NormLexeme[it]||it)
 	.join('');

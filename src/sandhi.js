@@ -6,6 +6,8 @@ export const Rules={ //規則號不得為 0,1,2
 	'a+i=A':'4',
 	'a+i=IA':'5',
 
+	'y+v=bVb':'2', //this is a special rule for udaya+vaya  ==>udayabbaya
+
 	'a+u=O':'3',
 	'a+u=A':'4',
 	'a+u=U':'5',
@@ -106,7 +108,7 @@ export const getHeadSyl=str=>{ //return vowel or consonant
 	else if (ch1.toLowerCase()==='i') return 'i';
 	else if (ch1.toLowerCase()==='o') return 'o';
 	else if (ch1.toLowerCase()==='e') return 'e';
-	else return ch1;
+	else return ch1+(ch2[1]=='A'?'A':''); //because 
 }
 
 export const sbProvident=str=>{ //convert long vowel to single byte, for easier comparison
@@ -150,7 +152,6 @@ export const getJoinType=(jt,left,right,verbose)=>{
 	}
 
 	if (typeof sandhi=='undefined') {
-		verbose&&console.log('no sandhi',jt,left)
 		if (jt==ELIDEBOTH || jt==ELIDERIGHT) {
 			const assim=getAssimiliar(right);
 			if (assim) {
@@ -167,6 +168,7 @@ export const getJoinType=(jt,left,right,verbose)=>{
 		sandhi=sandhi.slice(1)
 		keepLeft=true;
 	}
+	verbose&&console.log('r',right,R)
 	const leftconsumed=(!keepLeft  || join===ELIDELEFT ) &&L!=='a'; //vowel only , can do toLowerCase
 	const rightconsumed=(join===ELIDERIGHT ||join===ELIDEBOTH|| right!==R) || autorule;
 	return {keepLeft,sandhi,join,rightconsumed,leftconsumed}
