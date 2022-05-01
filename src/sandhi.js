@@ -41,9 +41,9 @@ for (let rule in Rules) {
 
 
 export const isAssimiliar=(s1,s2)=>{
-	if (s1.length!==1 || s2.length!==3 || s2[1]!=='V' || s1[0]!==s2[2]) return false;
+	if (s1.length!==1 || s2.length!==3 || s2[1]!=='V' || s1[0]!==s2[0]) return false;
 
-	if (s2[0].match(/[ckgjbp]/) && (s1[0]==s2[0] || s1[0]==s2[0].toUpperCase()) ) return true;
+	if (s2[0].match(/[ckgjbpt]/) && (s1[0]==s2[2] || s1[0]==s2[2].toLowerCase()) ) return true;
 	if (s1=='F' && (s2[2]=='W' || s2[2]=='F')) return true;
 	if (s1=='Q' && (s2[2]=='X' || s2[2]=='Q')) return true;
 }
@@ -55,7 +55,6 @@ export const getRule=(left,right,sandhi)=>{
 		key=left+'-'+right+'='+sandhi;
 		r=Rules[key];
 	}
-
 
 	if (!sandhi && !right && (!left||left==='a')) return ELIDENONE;
 	if (!sandhi && right==='') return ELIDELEFT;
@@ -74,6 +73,7 @@ export const getRule=(left,right,sandhi)=>{
 		if (left=='a') return ELIDEBOTH;  
 		if (left.match(/[AIUOE]$/)) return ELIDERIGHT;//default keeping the stem
 	}
+
 	return r||ELIDENONE;
 }
 
@@ -125,7 +125,7 @@ export const mbProvident=str=>{//convert single byte vowel back to provident for
 
 export const getAssimiliar=w=>{
 	let out='';
-	const m=w.match(/^([CBKPJGcbkpjg])/);
+	const m=w.match(/^([CBKPJGcbkpjgt])/);
 	if (m)	return m[1].toLowerCase()+'V'+m[1][0];
 	else if (w[0]=='F') return 'FVW';
 	else if (w[0]=='F') return 'QVX';
@@ -154,6 +154,7 @@ export const getJoinType=(jt,left,right,verbose)=>{
 	if (typeof sandhi=='undefined') {
 		if (jt==ELIDEBOTH || jt==ELIDERIGHT) {
 			const assim=getAssimiliar(right);
+			verbose&&console.log('assim',assim,right)
 			if (assim) {
 				if (jt==ELIDERIGHT && sandhi) sandhi='-'+sandhi;
 				verbose&&console.log('auto sandhi',sandhi)
@@ -168,8 +169,9 @@ export const getJoinType=(jt,left,right,verbose)=>{
 		sandhi=sandhi.slice(1)
 		keepLeft=true;
 	}
-	verbose&&console.log('r',right,R)
+	// verbose&&console.log('join',join,jt)
 	const leftconsumed=(!keepLeft  || join===ELIDELEFT ) &&L!=='a'; //vowel only , can do toLowerCase
 	const rightconsumed=(join===ELIDERIGHT ||join===ELIDEBOTH|| right!==R) || autorule;
+
 	return {keepLeft,sandhi,join,rightconsumed,leftconsumed}
 }
