@@ -24,12 +24,12 @@ const tryLexeme=(lx,i,orth,prev,verbose)=>{
 		let at1=orth.indexOf(lx.slice(0,lx.length-1),prev);//開頭符合
 		let at2=-1;
 		if (i) at2=orth.indexOf(lx.slice(1,lx.length-1),prev) //從第2字開始符合
-		verbose&&console.log('lexeme',lx,at1,at2,orth.slice(at1))
+		// verbose&&console.log('try lexeme',lx,at1,at2,orth.slice(at1))
 		return [at1,at2,cap,alpha,lx]
 }
 export const lexify=(mborth,lexemes,verbose)=>{
 	let orth=sbProvident(mborth);
-	let prev=0,	out=[]	,sandhi='',left=''	,cap=false,alpha=false, lexeme='', extra='',normed=false;
+	let prev=0,	out=[]	,sandhi='',cap=false,alpha=false, lexeme='', extra='',normed=false;
 	for (let i=0;i<lexemes.length;i++) {
 		let lx=sbProvident(lexemes[i]);
 		let at1,at2;
@@ -50,8 +50,8 @@ export const lexify=(mborth,lexemes,verbose)=>{
 			return out;			
 		}
 		const plast=lx[lx.length-1];
-
-		verbose&&console.log('o',lx,'at',at,'at1',at1,at2,orth)
+		let samelast=false;
+		// verbose&&console.log('o',lx,'at',at,'at1',at1,at2,orth.slice(at),prev,orth.slice(prev))
 		if (~at1) {
 			let eaten=0;
 			let sandhi=orth.slice(prev,at1);
@@ -61,20 +61,18 @@ export const lexify=(mborth,lexemes,verbose)=>{
 				 eaten=1;
 			}
 			i&&out.push(extra+sandhi);//sandhi
+			// verbose&&extra+sandhi&&console.log('sandhi',extra,'sandhi',sandhi,prev,at1)
 			const olast = orth[at1+lx.length-1];
-			if (olast===plast) { //no remain
-				if (eaten) {
-					lexeme=lx.slice(0,eaten)+'>'+lx.slice(eaten);
-				} else {
-					lexeme=lx;
-				}
-				prev+=lx.length+sandhi.length-eaten;
-				left='';
-			} else {
-				lexeme=lx.slice(0,lx.length-1)+'<'+plast;
-				left=plast;
-				prev+=lx.length-1+sandhi.length-eaten;
+			lexeme=lx;
+			if (eaten) {
+				lexeme=lx.slice(0,eaten)+'>'+lx.slice(eaten);
 			}
+			if (olast===plast) { //no remain
+				samelast=true;
+			} else {
+				lexeme=lexeme.slice(0,lexeme.length-1)+'<'+plast;
+			}
+
 		} else if (~at2 && i) {
 			const samehead=orth.slice(prev,at2+1)===lx.charAt(1);
 			let sandhi=orth.slice(prev,at2);
@@ -89,22 +87,19 @@ export const lexify=(mborth,lexemes,verbose)=>{
 				sandhi+=orth.charAt(at2)
 				at2--;
 			}
-			// verbose&&console.log('lxch0',lxch0,sandhi)
-			
 			const olast = orth[at2+lx.length-2];
 			const sdhi=sandhi!==lx.charAt(1)?extra+sandhi:'';
 			out.push(sdhi);
 			// verbose&&console.log('last',olast,plast,at1)
 			if (olast===plast) {
+				samelast=true;
 				lexeme=lx.charAt(0)+'>'+lx.slice(1);
-				left=lx.charAt(0);
-				prev+=lx.length-1 + sdhi.length;  //如果有sdhi ，表示替代，必須補回，否則at1 找不到
+				// prev+=lx.length-1 + sdhi.length;  //如果有sdhi ，表示替代，必須補回，否則at1 找不到
 			} else {
-				left=plast;
 				lexeme=lx.charAt(0)+'>'+lx.slice(1,lx.length-1)+'<'+plast;
-				prev+=lx.length-1 + sdhi.length;
 			}
 		}
+
 		if (cap) lexeme=lexeme.charAt(0).toLowerCase()+lexeme.slice(1);
 		if (alpha) {
 			lexeme='a'+lexeme;
@@ -114,7 +109,6 @@ export const lexify=(mborth,lexemes,verbose)=>{
 		if(extra) extra='';
 		if (normed&&DeNormLexeme[lexeme]!==lexeme) {
 			  const dlexeme=DeNormLexeme[lexeme];
-
 		    out.push(dlexeme||lexeme);
 		    if (dlexeme) {
 			    let at=dlexeme.indexOf('<');
@@ -125,9 +119,15 @@ export const lexify=(mborth,lexemes,verbose)=>{
 						out[out.length-2]+=e;
 					}
 		    }
+		    normed=false;
 		} else {
 				out.push(lexeme);	
 		}
+		prev=at+lx.length-1;
+		if (at!==at1&&at==at2) prev--;
+		if (samelast) prev++;
+		// verbose&&console.log('ORTH',prev,lx,'at',at,orth.slice(prev),'samelast',samelast,'at',at,at1,at2)
+
 	}
 	return out.map(mbProvident);
 }

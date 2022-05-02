@@ -23,6 +23,8 @@ export const Rules={ //規則號不得為 0,1,2
 	'u+i=U':'3',
 	'u+i=O':'4',
 	'u+i=UA':'5',
+	'u+u=UA':'6',
+	'o+a=':'3',
 }
 export const ELIDENONE=0,ELIDELEFT=1, ELIDERIGHT=2 ,ELIDEBOTH=3;
 export const JoinTypes={};
@@ -169,9 +171,11 @@ export const getJoinType=(jt,left,right,verbose)=>{
 		sandhi=sandhi.slice(1)
 		keepLeft=true;
 	}
-	// verbose&&console.log('join',join,jt)
-	const leftconsumed=(!keepLeft  || join===ELIDELEFT ) &&L!=='a'; //vowel only , can do toLowerCase
-	const rightconsumed=(join===ELIDERIGHT ||join===ELIDEBOTH|| right!==R) || autorule;
+	let leftconsumed=((!keepLeft  || join===ELIDELEFT ) &&L!=='a')?left.length:0; //vowel only , can do toLowerCase
+	if (leftconsumed>1) leftconsumed=1; //workaround for vEdnUpAdAnkVKnVDsVs
+	// verbose&&console.log('leftconsumed',leftconsumed,left.length)
+
+	const rightconsumed=((join===ELIDERIGHT ||join===ELIDEBOTH|| right!==R) || autorule)?right.length:0;
 
 	return {keepLeft,sandhi,join,rightconsumed,leftconsumed}
 }
