@@ -32,6 +32,9 @@ export const deva2IAST=(buf,onError)=>{ //for cst4
     return out;
 }
 export const LEXEME_REG_G=/([a-zA-Z]+[\dA-Za-z]*[a-zA-Z]+)/g;
+export const LEX_REG_G=/([a-zA-Z]+\d+[\dA-Za-z]+)/g;
 export const PALIWORD_REG_G=/([a-zA-Z]+)/g;
+export const isLex=w=>!!w.match(/[a-zA-Z]\d[a-zA-Z]/);
+
 export  {fromIAST,toIAST,toIASTOffText,fromDevanagari,enumTransliteration,breakSyllable,
     RO_CHARS};
