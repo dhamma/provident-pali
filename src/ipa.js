@@ -1,6 +1,6 @@
 //IPA Transcript from the World Tipitaka Edition 2009
 const p2e={
-    'a':'a','A':'a:','I':'i','II':'i:','U':'u','UU':'u:','e':'e','o':'o',
+    'a':'a','A':'a:','I':'i','IA':'i:','U':'u','UA':'u:','e':'e','o':'o',
     'aA':'a:','iI':'i:','uU':'u:','E':'e',
     'k':'k','K':'kh','g':'g','G':'gh','NVk':'Nk','NVK':'Nkh','NVg':'Ng','NVG':'Ngh',
     'c':'c','C':'ch','j':'J','J':'Jh','Y':'n^', 'y':'j',

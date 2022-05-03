@@ -3,6 +3,7 @@ export * from "./src/ipa.js"
 export * from "./src/order.js"
 export * from "./src/lexification.js"
 export * from "./src/lex.js"
+export * from "./src/syllable.js"
 
 import {toIndicXML,toIndic,fromDevanagari,fromDevanagariWord,enumTransliteration,DEVAPAT} from "./src/indic.js"
 import { doParts ,breakSyllable } from "./src/utils.js"
@@ -31,6 +32,7 @@ export const deva2IAST=(buf,onError)=>{ //for cst4
     });
     return out;
 }
+
 export const LEXEME_REG_G=/([a-zA-Z]+[\dA-Za-z]*[a-zA-Z]+)/g;
 export const LEX_REG_G=/([a-zA-Z]+\d+[\dA-Za-z]+)/g;
 export const PALIWORD_REG_G=/([a-zA-Z]+)/g;
