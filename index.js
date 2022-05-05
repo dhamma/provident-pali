@@ -5,7 +5,7 @@ export * from "./src/lexification.js"
 export * from "./src/lex.js"
 export * from "./src/syllable.js"
 
-import {toIndicXML,toIndic,fromDevanagari,fromDevanagariWord,enumTransliteration,DEVAPAT} from "./src/indic.js"
+import {toIndicXML,toIndic,fromDevanagari,fromDevanagariWord,enumTransliteration,DEVAPAT,DEVAPAT_G} from "./src/indic.js"
 import { doParts ,breakSyllable } from "./src/utils.js"
 export const xml2indic=(str,script='')=>{
     if (!script) return str;
@@ -19,6 +19,20 @@ export const offtext2indic=(str,script='')=>{
 
 }
 export const deva2IAST=(buf,onError)=>{ //for cst4
+    buf=buf.replace(/\u200d/g,'');    
+    return buf.replace(DEVAPAT_G,(m,deva)=>{
+        const prov=fromDevanagariWord(deva);
+        const num=parseInt(prov);
+        if (!isNaN(num) && num.toString()==prov) return prov;
+        let iast=toIASTWord(prov);
+        if (onError&&iast.indexOf('??') > -1) {
+            onError(deva,prov);
+        }
+        return iast;
+    })
+
+
+    /*
     buf=buf.replace(/\u200d/g,''); //remove zero width joiner
     let out=doParts(buf,DEVAPAT,(deva)=>{
         const prov=fromDevanagariWord(deva);
@@ -30,7 +44,9 @@ export const deva2IAST=(buf,onError)=>{ //for cst4
         }
         return iast;
     });
+
     return out;
+    */
 }
 
 export const LEXEME_REG_G=/([a-zA-Z]+[\dA-Za-z]*[a-zA-Z]+)/g;

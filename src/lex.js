@@ -99,7 +99,7 @@ export const orthOf=(lex,verbose)=>{
 
 	if (lex.length==1) return lex.join('');
 	else if (lex.length==2) {
-		console.log('wrong lex')
+		console.log('wrong lex', lex)
 		return '';
 	}
 
