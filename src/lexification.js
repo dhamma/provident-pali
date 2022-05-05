@@ -16,15 +16,23 @@ const tryLexeme=(lx,i,orth,prev,verbose)=>{
 			lx=lx.slice(1);	
 		}
 
-		if (i&&lx.charAt(0).match(/[eiuo]/)) {
-			lx=lx.charAt(0).toUpperCase()+lx.slice(1);
-			cap=true; //轉大寫
-		}
-
 		let at1=orth.indexOf(lx.slice(0,lx.length-1),prev);//開頭符合
 		let at2=-1;
 		if (i) at2=orth.indexOf(lx.slice(1,lx.length-1),prev) //從第2字開始符合
-		// verbose&&console.log('try lexeme',lx,at1,at2,orth.slice(at1))
+
+    //deal with 'cEv',['c','ev']  , e=>E 
+		if (i&&at1==-1 && at2>-1) { //try auto capitalize following lexeme
+			if (lx.charAt(0).match(/[eiuo]/) ) {
+				lx=lx.charAt(0).toUpperCase()+lx.slice(1);
+				cap=true; //開頭的元音轉大寫
+			}
+			//try again
+			at1=orth.indexOf(lx.slice(0,lx.length-1),prev);//開頭符合
+		}
+
+		// verbose&&console.log('try lexeme',lx,at1,at2,orth.slice(at1),alpha)
+
+
 		return [at1,at2,cap,alpha,lx]
 }
 export const lexify=(mborth,lexemes,verbose)=>{
@@ -100,7 +108,7 @@ export const lexify=(mborth,lexemes,verbose)=>{
 			}
 		}
 
-		if (cap) lexeme=lexeme.charAt(0).toLowerCase()+lexeme.slice(1);
+		if (cap) lexeme=lexeme.charAt(0).toUpperCase()+lexeme.slice(1);
 		if (alpha) {
 			lexeme='a'+lexeme;
 			alpha=false;

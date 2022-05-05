@@ -1,30 +1,31 @@
 export const Rules={ //規則號不得為 0,1,2
 // a+K=>kVK and so on are automatically accepted
 // i-K=>kVK , all other stem are keep intact
-	'a+a=A':'3',
-	'a+i=E':'3',
-	'a+i=A':'4',
-	'a+i=IA':'5',
+	'a-A=A':'3',
+	'a-I=E':'3',
+	'a-I=A':'4',
+	'a-I=IA':'5',
 
+
+	'a-U=O':'3',
+	'a-U=A':'4',
+	'a-U=U':'5',
+	'a-U=UA':'6',
+	
+	'a-E=E':'3',
+
+	'i+I=IA':'3',
+	'i+A=jVJ':'2', //this is a special rule for bodhi+anga
+
+	'u+A=UA':'3', //長音化
+
+	'u+I=U':'3',
+	'u+I=O':'4',
+	'u+I=UA':'5',
+	'u+U=UA':'6',
+	'o+A=':'3',
 	'y+v=bVb':'2', //this is a special rule for udaya+vaya  ==>udayabbaya
 
-	'a+u=O':'3',
-	'a+u=A':'4',
-	'a+u=U':'5',
-	'a+u=UA':'6',
-	
-	'a+e=E':'3',
-
-	'i+i=IA':'3',
-	'i+a=jVJ':'2', //this is a special rule for bodhi+anga
-
-	'u+a=UA':'3', //長音化
-
-	'u+i=U':'3',
-	'u+i=O':'4',
-	'u+i=UA':'5',
-	'u+u=UA':'6',
-	'o+a=':'3',
 }
 export const ELIDENONE=0,ELIDELEFT=1, ELIDERIGHT=2 ,ELIDEBOTH=3;
 export const JoinTypes={};
@@ -103,13 +104,13 @@ export const getTailSyl=str=>{ //return vowel
 export const getHeadSyl=str=>{ //return vowel or consonant
 	const ch1=str.slice(0,1), ch2=str.slice(0,2);
 	if (ch2==='aA') return 'aA'; //not changing, becuase a is dropped automatically
-	if (ch2==='iA') return 'ī';
-	else if (ch2==='uA') return 'ū';
-	else if (ch1.toLowerCase()==='a') return 'a';
-	else if (ch1.toLowerCase()==='u') return 'u';
-	else if (ch1.toLowerCase()==='i') return 'i';
-	else if (ch1.toLowerCase()==='o') return 'o';
-	else if (ch1.toLowerCase()==='e') return 'e';
+	if (ch2==='iA') return 'Ī';
+	else if (ch2==='uA') return 'Ū';
+	else if (ch1.toLowerCase()==='a') return 'A';
+	else if (ch1.toLowerCase()==='u') return 'U';
+	else if (ch1.toLowerCase()==='i') return 'I';
+	else if (ch1.toLowerCase()==='o') return 'O';
+	else if (ch1.toLowerCase()==='e') return 'E';
 	else return ch1+(ch2[1]=='A'?'A':''); //because 
 }
 
@@ -132,7 +133,10 @@ export const getAssimiliar=w=>{
 	else if (w[0]=='F') return 'FVW';
 	else if (w[0]=='F') return 'QVX';
 }
-
+const sameAlpha=(v1,v2)=>{
+	if (v1.match(/[aeiouAEIUO]/)) return v1.toUpperCase()===v2.toUpperCase();
+	return v1===v2;
+}
 export const getJoinType=(jt,left,right,verbose)=>{
 	let join=parseInt(jt);
 	const jtype=JoinTypes[join];
@@ -171,11 +175,13 @@ export const getJoinType=(jt,left,right,verbose)=>{
 		sandhi=sandhi.slice(1)
 		keepLeft=true;
 	}
-	let leftconsumed=((!keepLeft  || join===ELIDELEFT ) &&L!=='a')?left.length:0; //vowel only , can do toLowerCase
-	if (leftconsumed>1) leftconsumed=1; //workaround for vEdnUpAdAnkVKnVDsVs
-	// verbose&&console.log('leftconsumed',leftconsumed,left.length)
+	let leftconsumed=((!keepLeft  || join===ELIDELEFT)  )?left.length:0; //vowel only , can do toLowerCase
 
-	const rightconsumed=((join===ELIDERIGHT ||join===ELIDEBOTH|| right!==R) || autorule)?right.length:0;
+	if (leftconsumed>1) leftconsumed=1; //workaround for vEdnUpAdAnkVKnVDsVs
+	
+	const rightconsumed=(join===ELIDERIGHT ||join===ELIDEBOTH|| !sameAlpha(right,R) || autorule)?right.length:0;
+
+	// verbose&&console.log('leftconsumed',leftconsumed,left.length,(join===ELIDERIGHT ||join===ELIDEBOTH||right.toUpp))
 
 	return {keepLeft,sandhi,join,rightconsumed,leftconsumed}
 }

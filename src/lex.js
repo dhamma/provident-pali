@@ -38,7 +38,7 @@ export const parseLex=(_str,verbose)=>{
 	str.replace(/([a-zA-Z])(\d+)([a-zA-Z])/g,(m,left,jt,right, idx)=>{
 		const {keepLeft,join,sandhi,rightconsumed,leftconsumed}=getJoinType(jt,left,right,verbose);
 		// verbose&&console.log('keepLeft',!keepLeft,sandhi)
-		verbose&&console.log('sandhi',sandhi,'join',jt,'left',left,'right',right,'consumed',leftconsumed,'r',rightconsumed);
+		verbose&&console.log('sandhi',sandhi,'join',jt,'left',left,'right',right,'consumed l',leftconsumed,'r',rightconsumed);
 
 		const lexeme=leftconsumed?prevLexeme(idx,(idx&&join?'<':'')+left,join): prevLexeme(idx,left,join);
 		// verbose&&console.log('lexeme',lexeme)
@@ -104,14 +104,18 @@ export const orthOf=(lex,verbose)=>{
 	}
 
 	//leading a of each lexeme is elided, excerpt the first one
-	const lead_a=lex[0].charAt(0)=='a';
+	const lead_aa=lex[0].slice(0,2)==='aA';
 	
-	let s=(lead_a?'a':'')+lex.map(it=>it!==-1&&it.replace(/<.+$/,'').replace(/^.+>/,'')
-		.replace(/^a/,'').replace(/^([eiuo])/,(m,m1)=>m1.toUpperCase()))
+	// let s=(lead_a?'a':'')+
+	let s=lex.map(it=>it!==-1&&it.replace(/<.+$/,'').replace(/^.+>/,'').replace(/^aA/,'A'))
+		// .replace(/^([eiuo])/
+		// ,(m,m1)=>m1.toUpperCase())
 	.map((it,idx,self)=>( (self[idx+1]&&NormLexeme[it]) ||it))
 	 //change to normLexeme only when sandhi exist 
 	 // ( sambodhi has no sandhi/sambojjha has sandhi), but lexeme is always sambodhi
 	.join('');
+	if (lead_aa) s='aA'+s.slice(1);
+
 	if (s.match(/^[AEIOU]/)) s=s.charAt(0).toLowerCase()+s.slice(1);
 	return s;
 }
