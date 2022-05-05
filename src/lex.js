@@ -35,13 +35,13 @@ export const parseLex=(_str,verbose)=>{
 		} 
 		return lexeme;
 	}
-	str.replace(/([a-zA-Z])(\d+)([a-zA-Z])/g,(m,left,jt,right, idx)=>{
-		const {keepLeft,join,sandhi,rightconsumed,leftconsumed}=getJoinType(jt,left,right,verbose);
-		// verbose&&console.log('keepLeft',!keepLeft,sandhi)
-		verbose&&console.log('sandhi',sandhi,'join',jt,'left',left,'right',right,'consumed l',leftconsumed,'r',rightconsumed);
+	str.replace(/([a-zA-Z])(\d+)([a-zA-Z]A?)/g,(m,left,jt,right, idx)=>{
+		const {join,sandhi,rightconsumed,leftconsumed}=getJoinType(jt,left,right,verbose);
+		verbose&&console.log('sandhi',sandhi,'join',join,'left',left,'right',right,'consumed l',leftconsumed,'r',rightconsumed);
+
 
 		const lexeme=leftconsumed?prevLexeme(idx,(idx&&join?'<':'')+left,join): prevLexeme(idx,left,join);
-		// verbose&&console.log('lexeme',lexeme)
+		verbose&&console.log('lexeme',lexeme)
 
 		out.push(lexeme);
 		out.push(extra+sandhi);
@@ -49,7 +49,7 @@ export const parseLex=(_str,verbose)=>{
 		consumedhead=rightconsumed?right:'';
 
 		if (join===ELIDERIGHT) idx-=left.length; //沒用到的左邊，補回長度
-		else if (join===ELIDELEFT||join===ELIDENONE) idx-=right.length; //沒用到的右邊，補回長度
+		else if ( !rightconsumed ||join===ELIDELEFT||join===ELIDENONE) idx-=right.length; //沒用到的右邊，補回長度
 		else {
 			// if (leftconsumed&&L!=='a') idx-=left.length;
 			idx-=rightconsumed;
@@ -57,7 +57,7 @@ export const parseLex=(_str,verbose)=>{
 		}
 		prev=idx+m.length;
 	})
-
+	// verbose&&console.log(prevLexeme(str.length))
 	out.push(prevLexeme(str.length))
 
 	return out.map(mbProvident);

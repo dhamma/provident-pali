@@ -50,8 +50,9 @@ const tests=[
 	'FMs0mks0vAt0aAtp0srIAMsp0smVPsVsEhI',['FMs','','mks','','vAt','','aAtp','','srIAMsp','','smVPsVsEhI']],
 
 	// ['almtVTdstrEn',['almV','atVT','dstrEn'], 'almV0atVT0dstrEn' , [ 'alm<V', '', 'a>tVT', '', 'dstrEn'] ],
-
-
+	['imInAvArhAmEvAhM',['imInAv','arhAm','evAhM'],'imInAv3arhAm0EvAhM',
+	['imInAv','A','a>rhAm','','EvAhM']],
+	['kImAnIsMs',['kIM','aAnIsMs'],'kIM3aAnIsMs',['kI<M','m','aAnIsMs']],
 ]
 for (let i=0;i<tests.length;i++) {
 	let [orth, lexemes, testlexstr, testlex ]=tests[i];

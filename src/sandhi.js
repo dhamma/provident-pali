@@ -13,6 +13,7 @@ export const Rules={ //規則號不得為 0,1,2
 	'a-U=UA':'6',
 	
 	'a-E=E':'3',
+	'a~aA=m':'3',  //kImAnIsMs << kIM-aAnIsMs, remove left, keep right
 
 	'i+I=IA':'3',
 	'i+A=jVJ':'2', //this is a special rule for bodhi+anga
@@ -33,11 +34,15 @@ for (let rule in Rules) {
 	const jt=Rules[rule];
 	if (!JoinTypes[jt]) JoinTypes[jt]={};
 	let left,right,sandhi;
-	if (rule.indexOf('-')>0) {
-		[left,right,sandhi]=rule.split(/[\-=]/);
+
+	if (rule.indexOf('~')>0) {
+		[left,right,sandhi]=rule.split(/[=~]/);
+		JoinTypes[jt][left+'+'+right]='~'+sandhi; //right side is not elided
+	} else if (rule.indexOf('-')>0) {
+		[left,right,sandhi]=rule.split(/[=\-]/);
 		JoinTypes[jt][left+'+'+right]='-'+sandhi; //left is not elided
 	} else{
-		[left,right,sandhi]=rule.split(/[\+=]/);
+		[left,right,sandhi]=rule.split(/[=\+]/);
 		JoinTypes[jt][left+'+'+right]=sandhi;
 	}
 }
@@ -57,6 +62,10 @@ export const getRule=(left,right,sandhi)=>{
 	if (!r) {
 		key=left+'-'+right+'='+sandhi;
 		r=Rules[key];
+		if (!r) {
+			key=left+'~'+right+'='+sandhi;
+			r=Rules[key];			
+		}
 	}
 
 	if (!sandhi && !right && (!left||left==='a')) return ELIDENONE;
@@ -141,7 +150,8 @@ export const getJoinType=(jt,left,right,verbose)=>{
 	let join=parseInt(jt);
 	const jtype=JoinTypes[join];
 	const L=getTailSyl(left),R=getHeadSyl(right);
-	let sandhi ,keepLeft=join==ELIDERIGHT;
+	let sandhi ,keepLeft=(join==ELIDERIGHT||join==ELIDENONE)
+	,keepRight=(join==ELIDELEFT || join==ELIDENONE);
 	let adv=0,autorule=false;
 	if (join>=ELIDEBOTH) {
 		sandhi=jtype[L+'+'+R];
@@ -171,17 +181,20 @@ export const getJoinType=(jt,left,right,verbose)=>{
 	}
 	if (!sandhi)sandhi='';
 
-	if (sandhi&&sandhi.charAt(0)=='-') {
+	if (sandhi && (sandhi[0]=='-'||sandhi[0]=='~')) {
+		if (sandhi[0]=='-') keepLeft=true;
+		if (sandhi[0]=='~') keepRight=true;
 		sandhi=sandhi.slice(1)
-		keepLeft=true;
 	}
+	verbose&&console.log('sandhi',sandhi,keepRight)
+
 	let leftconsumed=((!keepLeft  || join===ELIDELEFT)  )?left.length:0; //vowel only , can do toLowerCase
 
 	if (leftconsumed>1) leftconsumed=1; //workaround for vEdnUpAdAnkVKnVDsVs
 	
-	const rightconsumed=(join===ELIDERIGHT ||join===ELIDEBOTH|| !sameAlpha(right,R) || autorule)?right.length:0;
-
+	const rightconsumed=!keepRight&&((join===ELIDERIGHT ||join===ELIDEBOTH)|| !sameAlpha(right,R) || autorule)?right.length:0;
+	verbose&&console.log('rightconsumed',rightconsumed)
 	// verbose&&console.log('leftconsumed',leftconsumed,left.length,(join===ELIDERIGHT ||join===ELIDEBOTH||right.toUpp))
 
-	return {keepLeft,sandhi,join,rightconsumed,leftconsumed}
+	return {keepRight,keepLeft,sandhi,join,rightconsumed,leftconsumed}
 }
