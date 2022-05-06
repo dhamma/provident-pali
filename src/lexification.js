@@ -60,7 +60,8 @@ export const lexify=(mborth,lexemes,verbose)=>{
 		}
 		const plast=lx[lx.length-1];
 		let samelast=false;
-		// verbose&&console.log('o',lx,'at',at,'at1',at1,at2,orth.slice(at),prev,orth.slice(prev))
+		verbose&&console.log(i,'o',lx,'at',at,'at1/2',at1,at2,orth.slice(at),prev,orth.slice(prev))
+		const orth_at_lexemefirst=orth.slice(at-1,at);
 		if (~at1) {
 			let eaten=0;
 			let sandhi=orth.slice(prev,at1);
@@ -69,6 +70,8 @@ export const lexify=(mborth,lexemes,verbose)=>{
 				 sandhi+=orth.charAt(at1);
 				 eaten=1;
 			}
+			if (sandhi==='a') sandhi=''; //workaround for bhUaAgtO=bhU0aAgtO , double vowel
+			
 			i&&out.push(extra+sandhi);//sandhi
 			// verbose&&extra+sandhi&&console.log('sandhi',extra,'sandhi',sandhi,prev,at1)
 			const olast = orth[at1+lx.length-1];
@@ -97,7 +100,7 @@ export const lexify=(mborth,lexemes,verbose)=>{
 				at2--;
 			}
 			const olast = orth[at2+lx.length-2];
-			const sdhi=sandhi!==lx.charAt(1)?extra+sandhi:'';
+			let sdhi=sandhi!==lx.charAt(1)?extra+sandhi:'';
 			out.push(sdhi);
 			// verbose&&console.log('last',olast,plast,at1)
 			if (olast===plast) {
@@ -111,7 +114,8 @@ export const lexify=(mborth,lexemes,verbose)=>{
 
 		if (cap) lexeme=lexeme.charAt(0).toUpperCase()+lexeme.slice(1);
 		if (alpha) {
-			lexeme='a'+lexeme;
+			/* if orth is keeping the a , double vowel  */
+			lexeme= ((orth_at_lexemefirst=='a')?'a':'A') +lexeme;
 			alpha=false;
 		}
 

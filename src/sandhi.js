@@ -16,12 +16,15 @@ export const Rules={ //規則號不得為 0,1,2
 
 	'a-Ū=UA':'3',
 	'a-Ī=IA':'3',
+
+	'A-AA=':'3',
 	
 	'a-E=E':'3',
-	'a~aA=m':'3',  //kImAnIsMs << kIM-aAnIsMs, remove left, keep right
+	'M~AA=m':'3',  //kImAnIsMs << kIM-aAnIsMs, remove left, keep right
 
 	'I+I=IA':'3',
 	'I+A=jVJ':'2', //this is a special rule for bodhi+anga
+	'I+U=UA':'3',
 
 	'U+A=UA':'3', //長音化
 
@@ -33,7 +36,7 @@ export const Rules={ //規則號不得為 0,1,2
 	'y+v=bVb':'2', //this is a special rule for udaya+vaya  ==>udayabbaya
 
 	'V+A=':'3',
-
+	'a-E=A':'3',
 }
 export const ELIDENONE=0,ELIDELEFT=1, ELIDERIGHT=2 ,ELIDEBOTH=3;
 export const JoinTypes={};
@@ -56,29 +59,34 @@ for (let rule in Rules) {
 
 
 export const isAssimiliar=(s1,s2)=>{
-	if (s1.length!==1 || s2.length!==3 || s2[1]!=='V' || s1[0]!==s2[2]) return false;
-	if (s2[0].match(/[ckgjbptd]/) && (s1[0]==s2[2] || s1[0]==s2[2].toLowerCase()) ) return true;
+	if ( s2.length!==3 || s2[1]!=='V' || s1[0]!==s2[2]) return false;
+	if (s2[0].match(/[ckgjbptds]/) && (s1[0]==s2[2] || s1[0]==s2[2].toLowerCase()) ) return true;
 
 	if (s1=='F' && (s2[2]=='W' || s2[2]=='F')) return true;
 	if (s1=='Q' && (s2[2]=='X' || s2[2]=='Q')) return true;
 }
-export const getRule=(left,right,sandhi,verbose)=>{
-	let key=left+'+'+right+'='+sandhi;
-	
-	let r=Rules[key];
-	if (!r) {
-		key=left+'-'+right+'='+sandhi;
-		r=Rules[key];
-		if (!r) {
-			key=left+'~'+right+'='+sandhi;
-			r=Rules[key];			
-		}
-	}
+export const getRule=(left,right,leftconsumed,rightconsumed,sandhi,verbose)=>{
+	if (!sandhi && !leftconsumed && !rightconsumed) return 0;
 
+	let rulekey='-';
+	if (leftconsumed && !rightconsumed) rulekey='~';
+	else if (rightconsumed) rulekey='+';
+
+	let key=left+rulekey+right+'='+sandhi;
+
+	verbose&&console.log('rulekey',rulekey,leftconsumed,rightconsumed)
+	let r=Rules[key];
+
+	if (!r && rulekey=='+') { //for ['kImAnIsMs',['kIM','aAnIsMs'],'kIM3AAnIsMs',['kI<M','m','AAnIsMs']],
+		rulekey='~'; //try
+		key=left+rulekey+right+'='+sandhi;
+		r=Rules[key]
+	}
 	if (!sandhi && !right && (!left||left==='a')) return ELIDENONE;
 	if (!sandhi && right==='') return ELIDELEFT;
 	if (!sandhi && (left===''||left==='a') && !right) return ELIDERIGHT;
 
+/*
 	if (!r) {
 		key='+'+right;
 		r=Rules[key];
@@ -87,6 +95,7 @@ export const getRule=(left,right,sandhi,verbose)=>{
 			r=Rules[key];
 		}
 	}
+*/
 	// verbose&&console.log('RR ',right,sandhi,isAssimiliar('C',sandhi))
 	//try assimilization rule
 	if (!r && isAssimiliar(right,sandhi)) {
@@ -111,17 +120,19 @@ export const getTailSyl=str=>{ //return vowel
 	else if (ch2==='UA') return 'Ū'
 	else if (ch1==='E') return 'E'
 	else if (ch1==='O') return 'O'
-	else if (ch1=='A') return 'Ā'
+	else if (ch1=='A') return 'A'
 	else if (ch1=='I') return 'I'
 	else if (ch1=='U') return 'U'
 	else if (ch1=='V') return 'V'
+	else if (ch1=='M') return 'M'
 	return 'a';
 }
 
 export const getHeadSyl=str=>{ //return vowel or consonant
 	const ch1=str.slice(0,1), ch2=str.slice(0,2);
 	if (ch2==='aA') return 'aA'; //not changing, becuase a is dropped automatically
-	if (ch2==='iA') return 'Ī';
+	else if (ch2==='AA') return 'AA';
+	else if (ch2==='iA') return 'Ī';
 	else if (ch2==='uA') return 'Ū';
 	else if (ch1==='ū') return 'Ū';
 	else if (ch1==='ī') return 'Ī';
@@ -147,7 +158,7 @@ export const mbProvident=str=>{//convert single byte vowel back to provident for
 
 export const getAssimiliar=w=>{
 	let out='';
-	const m=w.match(/^([CBKPJGcbkpjgt])/);
+	const m=w.match(/^([CBKPJGcbkpjgts])/);
 	if (m)	return m[1].toLowerCase()+'V'+m[1][0];
 	else if (w[0]=='F') return 'FVW';
 	else if (w[0]=='F') return 'QVX';

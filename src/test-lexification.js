@@ -4,8 +4,9 @@ import {fromIAST,toIAST} from './iast.js';
 let pass=0,test=0;
 console.clear()
 const tests=[
+	['pAyM',['pI','aAyM'],'pI1AAyM',['p<I','','AAyM'] ], // ['pāyaṃ',['pi','āyaṃ'],'pi+-āyaṃ',  ],
+	['bhUaAgtO',['bhU','aAgtO'],'bhU0aAgtO',['bhU','','aAgtO']],
 	['cEv',['c','ev'],'c0Ev', ['c','','Ev'] ],  //ceva = ca+eva  , first Upper case Vowel convert to lower case before display
-	['almatVt',['alm','atVt'],'alm0atVt',['alm','','atVt']],
 	['ydIdM',['yd','idM'],'yd0IdM',['yd','','IdM']], // ['yadidaṃ',['yad','idaṃ'],'yad-idaṃ'],
 	['pIsVs',['pI','asVs'],'pI2asVs',['pI','','a>sVs'] ], // ['pissa',['pi','assa'],'pi-assa', ,
 	['pdOpm',['pd','upm'], 'pd3Upm' , ['pd','O','U>pm']  ], // [ 'padopama',['pada','upama'], 'pada+upama' ,
@@ -20,18 +21,16 @@ const tests=[
 	['mhEsI',['mh','isI'],'mh3IsI',['mh','E','I>sI']], // ['mahesi',['maha','isi'],'maha+isi'],
 	['bOjVJNVgAtI', ['bODI','aNVgA','tI'], 'bODI2aNVgA0tI',['bO<DI', 'jVJ', 'a>NVgA', '', 'tI']],
 	['anUpVpnVnYVcEv',['anUpVpnVnYV','c','ev'],'anUpVpnVnYV0c0Ev',['anUpVpnVnYV','','c','','Ev']],
-	['almrIyYANdsVsnvIsEsM',['almV','arIy','YAN','dsVsnvIsEsM'],'almV3arIy0YAN0dsVsnvIsEsM',['alm<V','','a>rIy','','YAN','','dsVsnvIsEsM']],
 	['aNVgArkAsUApmA',['aNVgArkAs','uApmA'],'aNVgArkAs0UApmA',['aNVgArkAs','','UApmA']],
-	['pAyM',['pI','aAyM'],'pI3aAyM',['p<I','','aAyM'] ], // ['pāyaṃ',['pi','āyaṃ'],'pi+-āyaṃ',  ],
 	['otArApEkVKO',['otAr','upEkVKO'],'otAr4UpEkVKO',['otAr','A','U>pEkVKO']],// [ 'otārāpekkho',['otāra','upekkho'],'otāra+2upekkho', ], //a+u => ā
 	['sUAD',['sU','iD'],'sU5ID',['s<U','UA','I>D']],// ['sūdha',['su','idha'],'su+1idha'],
 	['kOmE',['kU','imE'],'kU4ImE',['k<U','O','I>mE']],// ['kome',['ku','ime'],'ku+2ime',
 	['sAv',['s','iv'],'s4Iv', ['s','A','I>v']],           // ['sāva',['sa','iva'],'sa+1iva', ],
 	['atVtIksVsIAD',['atVtIksVs','iD'],'atVtIksVs5ID',['atVtIksVs','IA','I>D'] ] , // ['atthikassīdha',['atthikassa','idha'],'atthikassa+2idha'],
 	['bhUApkArsUtVtM',['bhU','upkAr','sUtVtM'], 'bhU6UpkAr0sUtVtM',[ 'bh<U', 'UA', 'U>pkAr', '', 'sUtVtM' ]],
-	['cdInVnmAdIyE', ['c','adInVnmV','aAdIyE'], 'c2adInVnmV1aAdIyE', [ 'c', '', 'a>dInVnm<V', '', 'aAdIyE' ]], 
-	['aAyAmAnnVd',['aAyAm','aAnnVd'],'aAyAm0aAnnVd',['aAyAm','','aAnnVd']],
+	['aAyAmAnnVd',['aAyAm','aAnnVd'],'aAyAm0AAnnVd',['aAyAm','','AAnnVd']],
 	['atVtUApmA',['atVt','upmA'], 'atVt6UpmA' ,  ['atVt','UA','U>pmA']  ], // ['attūpamā',['atta','upamā'],'atta+1upamā',  ], //a+u => ū
+	['almatVt',['alm','atVt'],'alm0atVt',['alm','','atVt']],
 	['imInAvArhAmEvAhM',['imInAv','arhAm','evAhM'],'imInAv3arhAm0EvAhM',
 	['imInAv','A','a>rhAm','','EvAhM']],
 	['vEdnUpAdAnkVKnVDsVs',['vEdnA','upAdAn','KnVDsVs'],'vEdnA1UpAdAn3KnVDsVs', [ 'vEdn<A', '', 'UpAdAn', 'kVK', 'K>nVDsVs' ]],
@@ -41,13 +40,23 @@ const tests=[
 	['ctUgVgUN',['ctU','gUN'],'ctU3gUN',['ctU','gVg','g>UN']],//catugguṇaṃ=catu-g-guṇaṃ|catu-g-guṇaṃ
 	['DmVmcVCnVd',['DmVm','CnVd'],'DmVm3CnVd',['DmVm','cVC','C>nVd']],//dhammacchanda=dhamma-c-chanda
 	['idpVpcVcy',['id','pcVcy'],'id3pcVcy',['id','pVp','p>cVcy'] ],// [],//idappaccaya=ida-p-paccaya
-	['pYVctVtysVs',['pYVc','tyO','asVs'],'pYVc3tyO3asVs' ,[ 'pYVc', 'tVt', 't>y<O', '', 'a>sVs' ] ],
 	['FMsmksvAtAtpsrIAMspsmVPsVsEhI',['FMs','mks','vAt','aAtp','srIAMsp','smVPsVsEhI'],
-	'FMs0mks0vAt0aAtp0srIAMsp0smVPsVsEhI',['FMs','','mks','','vAt','','aAtp','','srIAMsp','','smVPsVsEhI']],
+	'FMs0mks0vAt0AAtp0srIAMsp0smVPsVsEhI',['FMs','','mks','','vAt','','AAtp','','srIAMsp','','smVPsVsEhI']],
+	['kImAnIsMs',['kIM','aAnIsMs'],'kIM3AAnIsMs',['kI<M','m','AAnIsMs']],
+	['arItVtjVJAnO',['arItVt','JAnO'],'arItVt3JAnO',['arItVt','jVJ','J>AnO']],
+	['mYVjUsVsrAnM',['mYVjU','srAnM'],'mYVjU3srAnM',['mYVjU','sVs','s>rAnM']],
+
+	['almrIyYANdsVsnvIsEsM',['almV','arIy','YAN','dsVsnvIsEsM'],'almV3arIy0YAN0dsVsnvIsEsM',['alm<V','','a>rIy','','YAN','','dsVsnvIsEsM']],
 	['almtVTdstrEn',['almV','atVT','dstrEn'], 'almV3atVT0dstrEn' , [ 'alm<V', '', 'a>tVT', '', 'dstrEn'] ],
+	['shAv',['sh','ev'],'sh3Ev',['sh','A','E>v']],
+	['umVmtVtOsVmI',['umVmtVtO','asVmI'],'umVmtVtO2asVmI',['umVmtVtO','','a>sVmI']],
+	['pYVctVtysVs',['pYVc','tyO','asVs'],'pYVc3tyO3asVs' ,[ 'pYVc', 'tVt', 't>y<O', '', 'a>sVs' ] ],
+	['sOatVtAsUtVtM',['sO','atVtA','sUtVtM'],'sO0atVtA0sUtVtM',['sO','','atVtA','','sUtVtM']],
 
-	['kImAnIsMs',['kIM','aAnIsMs'],'kIM3aAnIsMs',['kI<M','m','aAnIsMs']],
+	['smADUApnIsM',['smADI','upnIsM'],'smADI3UpnIsM',['smAD<I','UA','U>pnIsM']],
+	['sAlAnnVdO',['sAlA','aAnnVdO'],'sAlA2AAnnVdO',['sAlA','','AA>nnVdO']],
 
+	// ['cdInVnmAdIyE', ['c','adInVnmV','aAdIyE'], 'c2adInVnmV3AAdIyE', [ 'c', '', 'a>dInVnm<V', '', 'AAdIyE' ]], 
 ]
 for (let i=0;i<tests.length;i++) {
 	let [orth, lexemes, testlexstr, testlex ,verbose]=tests[i];
