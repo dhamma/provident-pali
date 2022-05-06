@@ -1,6 +1,7 @@
 export const Rules={ //規則號不得為 0,1,2
 // a+K=>kVK and so on are automatically accepted
 // i-K=>kVK , all other stem are keep intact
+
 	'a-A=A':'3',
 	'a-I=E':'3',
 	'a-I=A':'4',
@@ -15,17 +16,19 @@ export const Rules={ //規則號不得為 0,1,2
 	'a-E=E':'3',
 	'a~aA=m':'3',  //kImAnIsMs << kIM-aAnIsMs, remove left, keep right
 
-	'i+I=IA':'3',
-	'i+A=jVJ':'2', //this is a special rule for bodhi+anga
+	'I+I=IA':'3',
+	'I+A=jVJ':'2', //this is a special rule for bodhi+anga
 
-	'u+A=UA':'3', //長音化
+	'U+A=UA':'3', //長音化
 
-	'u+I=U':'3',
-	'u+I=O':'4',
-	'u+I=UA':'5',
-	'u+U=UA':'6',
-	'o+A=':'3',
+	'U+I=U':'3',
+	'U+I=O':'4',
+	'U+I=UA':'5',
+	'U+U=UA':'6',
+	'O+A=':'3',
 	'y+v=bVb':'2', //this is a special rule for udaya+vaya  ==>udayabbaya
+
+	'V+A=':'3',
 
 }
 export const ELIDENONE=0,ELIDELEFT=1, ELIDERIGHT=2 ,ELIDEBOTH=3;
@@ -100,14 +103,15 @@ export const getRight=str=>{
 
 export const getTailSyl=str=>{ //return vowel
 	const ch1=str.slice(str.length-1), ch2=str.slice(str.length-2);
-	if (ch2==='IA') return 'ī'
-	else if (ch2==='UA') return 'ū'
-	else if (ch1==='E') return 'e'
-	else if (ch1==='O') return 'o'
-	else if (ch1=='A') return 'ā'
-	else if (ch1=='I') return 'i'
-	else if (ch1=='U') return 'u'
-	else return 'a'
+	if (ch2==='IA') return 'Ī'
+	else if (ch2==='UA') return 'Ū'
+	else if (ch1==='E') return 'E'
+	else if (ch1==='O') return 'O'
+	else if (ch1=='A') return 'Ā'
+	else if (ch1=='I') return 'I'
+	else if (ch1=='U') return 'U'
+	else if (ch1=='V') return 'V'
+	return 'a'
 }
 
 export const getHeadSyl=str=>{ //return vowel or consonant

@@ -53,6 +53,11 @@ const tests=[
 	['imInAvArhAmEvAhM',['imInAv','arhAm','evAhM'],'imInAv3arhAm0EvAhM',
 	['imInAv','A','a>rhAm','','EvAhM']],
 	['kImAnIsMs',['kIM','aAnIsMs'],'kIM3aAnIsMs',['kI<M','m','aAnIsMs']],
+
+//do not allow single char in middle
+	['anUpVpnVnYVcEv',['anUpVpnVnYV','c','ev'],'anUpVpnVnYV0c0Ev',['anUpVpnVnYV','','c','','Ev']],
+
+	['almrIyYANdsVsnvIsEsM',['almV','arIy','YAN','dsVsnvIsEsM'],'almV3arIy0YAN0dsVsnvIsEsM',['alm<V','','a>rIy','','YAN','','dsVsnvIsEsM']]
 ]
 for (let i=0;i<tests.length;i++) {
 	let [orth, lexemes, testlexstr, testlex ]=tests[i];

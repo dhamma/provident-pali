@@ -5,11 +5,23 @@ import {DeNormLexeme,NormLexeme,samecount,sameendcount} from './lexeme.js'
   將詞件展開式與字串式的轉換，字串式一定可以展開，反之不然。
   字串式以數字分隔詞件，連音從數字和前後字元，按照規則產生。
 */
+
 export const parseLex=(_str,verbose)=>{
 	const out=[];
 	let prev=0, str=sbProvident(_str),
 	consumedhead='', //被吃掉的頭
 	extra='';
+	const addLexeme=lexeme=>{
+		if (lexeme.match(/\d/)) {
+			 if (lexeme.indexOf('<')>-1 || lexeme.indexOf('>')>-1) {
+			 	  console.log('error single char lexeme',_str);
+			 } else {
+			 	  lexeme=lexeme.replace(/^\d/,'').replace(/\d$/,'');//prevention
+			 	  const p=parseLex(lexeme);
+			 	  out.push(...p);
+			 }
+		} else out.push(lexeme);
+	}
 
 	const prevLexeme=(idx, last='',join)=>{
 		const len=consumedhead.length;
@@ -35,15 +47,15 @@ export const parseLex=(_str,verbose)=>{
 		} 
 		return lexeme;
 	}
-	str.replace(/([a-zA-Z])(\d+)([a-zA-Z]A?)/g,(m,left,jt,right, idx)=>{
+
+	str.replace(/([a-zA-ZĪŪ])(\d+)([a-zA-ZĪŪ]A?)/g,(m,left,jt,right, idx)=>{
 		const {join,sandhi,rightconsumed,leftconsumed}=getJoinType(jt,left,right,verbose);
 		verbose&&console.log('sandhi',sandhi,'join',join,'left',left,'right',right,'consumed l',leftconsumed,'r',rightconsumed);
-
 
 		const lexeme=leftconsumed?prevLexeme(idx,(idx&&join?'<':'')+left,join): prevLexeme(idx,left,join);
 		verbose&&console.log('lexeme',lexeme)
 
-		out.push(lexeme);
+		addLexeme(lexeme)
 		out.push(extra+sandhi);
 		extra='';
 		consumedhead=rightconsumed?right:'';
@@ -56,9 +68,10 @@ export const parseLex=(_str,verbose)=>{
 			verbose && console.log('right',right,'prev',idx+m.length,rightconsumed,left,sandhi)
 		}
 		prev=idx+m.length;
+		verbose&&console.log('prev',prev,str.slice(prev))
 	})
-	// verbose&&console.log(prevLexeme(str.length))
-	out.push(prevLexeme(str.length))
+	const lexeme=prevLexeme(str.length);
+	addLexeme(lexeme);
 
 	return out.map(mbProvident);
 }
@@ -73,7 +86,7 @@ export const stringifyLex=(lex,verbose)=>{
 			const leftv=getTailSyl(lex[i-1].replace('<',''));
 			const rightv=getHeadSyl(lex[i+1].replace('>',''));
 			let rule=getRule(leftv,rightv,sandhi);
-			// verbose&&console.log(leftv,'+',rightv,'='+sandhi)
+			verbose&&console.log(leftv,'+',rightv,'='+sandhi)
 			if (rule==ELIDENONE) {
 				const left=getLeft(lex[i-1]);
 				const right=getRight(lex[i+1]);
@@ -117,5 +130,23 @@ export const orthOf=(lex,verbose)=>{
 	if (lead_aa) s='aA'+s.slice(1);
 
 	if (s.match(/^[AEIOU]/)) s=s.charAt(0).toLowerCase()+s.slice(1);
+
+
 	return s;
+}
+const LEXEME_SPLIT='/'
+export const lexemeOf=(lex,splitchar=LEXEME_SPLIT)=>{
+	let s='';
+
+	if (typeof lex==='string') {
+		s=m1.replace(/\d+/g,splitchar)
+	} else {
+		for (let i=0;i<lex.length;i+=2) {
+			if (i) s+=splitchar;
+			s+=lex[i].replace(/[><]/g,'');
+		}
+	}
+	s=s.replace(/([^a-zA-Z])([EIOU])/g,(m,m1,m2)=>m1+m2.toLowerCase());
+
+	return s
 }
