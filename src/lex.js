@@ -48,7 +48,7 @@ export const parseLex=(_str,verbose)=>{
 		return lexeme;
 	}
 
-	str.replace(/([a-zA-ZĪŪ])(\d+)([a-zA-ZĪŪ]A?)/g,(m,left,jt,right, idx)=>{
+	str.replace(/([a-zA-ZĪŪ])(\d+)([a-zA-ZĀĪŪāūī]A?)/g,(m,left,jt,right, idx)=>{
 		const {join,sandhi,rightconsumed,leftconsumed}=getJoinType(jt,left,right,verbose);
 		verbose&&console.log('sandhi',sandhi,'join',join,'left',left,'right',right,'consumed l',leftconsumed,'r',rightconsumed);
 
@@ -85,9 +85,9 @@ export const stringifyLex=(lex,verbose)=>{
 			const sandhi=lex[i]||'';
 			const leftv=getTailSyl(lex[i-1].replace('<',''));
 			const rightv=getHeadSyl(lex[i+1].replace('>',''));
-			let rule=getRule(leftv,rightv,sandhi);
-			verbose&&console.log(leftv,'+',rightv,'='+sandhi)
-			if (rule==ELIDENONE) {
+			let rule=getRule(leftv,rightv,sandhi,verbose);
+			verbose&&console.log('RULE', rule,leftv,'+',rightv,'='+sandhi)
+			if (rule===ELIDENONE) {
 				const left=getLeft(lex[i-1]);
 				const right=getRight(lex[i+1]);
 				if ( (left && left!=='a') && !right) rule=ELIDELEFT;

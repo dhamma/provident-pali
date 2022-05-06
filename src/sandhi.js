@@ -6,12 +6,16 @@ export const Rules={ //規則號不得為 0,1,2
 	'a-I=E':'3',
 	'a-I=A':'4',
 	'a-I=IA':'5',
+	'I~aA=':'3',
 
 
 	'a-U=O':'3',
 	'a-U=A':'4',
 	'a-U=U':'5',
 	'a-U=UA':'6',
+
+	'a-Ū=UA':'3',
+	'a-Ī=IA':'3',
 	
 	'a-E=E':'3',
 	'a~aA=m':'3',  //kImAnIsMs << kIM-aAnIsMs, remove left, keep right
@@ -52,13 +56,13 @@ for (let rule in Rules) {
 
 
 export const isAssimiliar=(s1,s2)=>{
-	if (s1.length!==1 || s2.length!==3 || s2[1]!=='V' || s1[0]!==s2[0]) return false;
+	if (s1.length!==1 || s2.length!==3 || s2[1]!=='V' || s1[0]!==s2[2]) return false;
+	if (s2[0].match(/[ckgjbptd]/) && (s1[0]==s2[2] || s1[0]==s2[2].toLowerCase()) ) return true;
 
-	if (s2[0].match(/[ckgjbpt]/) && (s1[0]==s2[2] || s1[0]==s2[2].toLowerCase()) ) return true;
 	if (s1=='F' && (s2[2]=='W' || s2[2]=='F')) return true;
 	if (s1=='Q' && (s2[2]=='X' || s2[2]=='Q')) return true;
 }
-export const getRule=(left,right,sandhi)=>{
+export const getRule=(left,right,sandhi,verbose)=>{
 	let key=left+'+'+right+'='+sandhi;
 	
 	let r=Rules[key];
@@ -83,13 +87,13 @@ export const getRule=(left,right,sandhi)=>{
 			r=Rules[key];
 		}
 	}
+	// verbose&&console.log('RR ',right,sandhi,isAssimiliar('C',sandhi))
 	//try assimilization rule
-	if (!r && isAssimiliar(right,sandhi) ) {
-		if (left=='a') return ELIDEBOTH;  
-		if (left.match(/[AIUOE]$/)) return ELIDERIGHT;//default keeping the stem
+	if (!r && isAssimiliar(right,sandhi)) {
+		if (isVowel(left)) r=ELIDEBOTH;
+		else if (left.match(/[AIUOE]$/)) r=ELIDERIGHT;//default keeping the stem
 	}
-
-	return r||ELIDENONE;
+	return parseInt(r)||ELIDENONE;
 }
 
 export const getLeft=str=>{
@@ -111,7 +115,7 @@ export const getTailSyl=str=>{ //return vowel
 	else if (ch1=='I') return 'I'
 	else if (ch1=='U') return 'U'
 	else if (ch1=='V') return 'V'
-	return 'a'
+	return 'a';
 }
 
 export const getHeadSyl=str=>{ //return vowel or consonant
@@ -119,6 +123,8 @@ export const getHeadSyl=str=>{ //return vowel or consonant
 	if (ch2==='aA') return 'aA'; //not changing, becuase a is dropped automatically
 	if (ch2==='iA') return 'Ī';
 	else if (ch2==='uA') return 'Ū';
+	else if (ch1==='ū') return 'Ū';
+	else if (ch1==='ī') return 'Ī';
 	else if (ch1.toLowerCase()==='a') return 'A';
 	else if (ch1.toLowerCase()==='u') return 'U';
 	else if (ch1.toLowerCase()==='i') return 'I';
@@ -129,14 +135,14 @@ export const getHeadSyl=str=>{ //return vowel or consonant
 
 export const sbProvident=str=>{ //convert long vowel to single byte, for easier comparison
 	return str.replace(/UA/g,'Ū').replace(/IA/g,'Ī')
-	//.replace(/aA/g,'ā')
 	.replace(/iA/g,'ī').replace(/uA/g,'ū')
+	// .replace(/aA/g,'ā')
 }
 
 export const mbProvident=str=>{//convert single byte vowel back to provident format
 	return str.replace(/Ū/g,'UA').replace(/Ī/g,'IA')
-	//.replace(/ā/g,'aA')
 	.replace(/ī/g,'iA').replace(/ū/g,'uA')
+	// .replace(/ā/g,'aA')
 }
 
 export const getAssimiliar=w=>{
@@ -150,6 +156,9 @@ const sameAlpha=(v1,v2)=>{
 	if (v1.match(/[aeiouAEIUO]/)) return v1.toUpperCase()===v2.toUpperCase();
 	return v1===v2;
 }
+export const isVowel=s=>!!s.match(/^[aeiouīūāŪĪĀAEIOU]/);
+export const isConsonant=s=>!isVowel(s);
+
 export const getJoinType=(jt,left,right,verbose)=>{
 	let join=parseInt(jt);
 	const jtype=JoinTypes[join];
@@ -158,23 +167,18 @@ export const getJoinType=(jt,left,right,verbose)=>{
 	,keepRight=(join==ELIDELEFT || join==ELIDENONE);
 	let adv=0,autorule=false;
 	if (join>=ELIDEBOTH) {
-		sandhi=jtype[L+'+'+R];
-		if (typeof sandhi==='undefined') {
-			sandhi=jtype['+'+R]; //看看是否有左通則
-			if (typeof sandhi==='undefined') {
-				sandhi=jtype[L+'+'];  //看看是否有右通則
-				if (typeof sandhi!=='undefined') join=ELIDELEFT;
-				else join=ELIDENONE;
-			} else {
-				join=ELIDERIGHT;
-			}
-		} else join=ELIDEBOTH;
+		sandhi=jtype[left+'+'+R];
+		if (typeof sandhi==='undefined' && isConsonant(left)) { //
+			sandhi=jtype[L+'+'+R];
+			// console.log('try '+L+'+'+R,sandhi,jtype)
+		}
 	}
+	verbose&&console.log('raw sandhi',sandhi, )
 
 	if (typeof sandhi=='undefined') {
 		if (jt==ELIDEBOTH || jt==ELIDERIGHT) {
 			const assim=getAssimiliar(right);
-			verbose&&console.log('assim',assim,right)
+			verbose&&console.log('assim',assim,right,jt)
 			if (assim) {
 				if (jt==ELIDERIGHT && sandhi) sandhi='-'+sandhi;
 				verbose&&console.log('auto sandhi',sandhi)
@@ -185,19 +189,21 @@ export const getJoinType=(jt,left,right,verbose)=>{
 	}
 	if (!sandhi)sandhi='';
 
+
 	if (sandhi && (sandhi[0]=='-'||sandhi[0]=='~')) {
 		if (sandhi[0]=='-') keepLeft=true;
 		if (sandhi[0]=='~') keepRight=true;
 		sandhi=sandhi.slice(1)
 	}
-	verbose&&console.log('sandhi',sandhi,keepRight)
+	verbose&&console.log('sandhi',sandhi,'keepLeft',keepLeft,'keepRight',keepRight)
 
-	let leftconsumed=((!keepLeft  || join===ELIDELEFT)  )?left.length:0; //vowel only , can do toLowerCase
+	//autorule keep left, consume right
+	let leftconsumed=(!autorule &&(!keepLeft  || join===ELIDELEFT) )?left.length:0; //vowel only , can do toLowerCase
 
-	if (leftconsumed>1) leftconsumed=1; //workaround for vEdnUpAdAnkVKnVDsVs
+	if (leftconsumed>1) leftconsumed=1;
 	
-	const rightconsumed=!keepRight&&((join===ELIDERIGHT ||join===ELIDEBOTH)|| !sameAlpha(right,R) || autorule)?right.length:0;
-	verbose&&console.log('rightconsumed',rightconsumed)
+	const rightconsumed=!keepRight&&((join===ELIDERIGHT ||join>=ELIDEBOTH)|| !sameAlpha(right,R) || autorule)?right.length:0;
+	verbose&&console.log('rightconsumed',rightconsumed,'autorule',autorule)
 	// verbose&&console.log('leftconsumed',leftconsumed,left.length,(join===ELIDERIGHT ||join===ELIDEBOTH||right.toUpp))
 
 	return {keepRight,keepLeft,sandhi,join,rightconsumed,leftconsumed}

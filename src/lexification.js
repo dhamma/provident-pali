@@ -15,6 +15,7 @@ const tryLexeme=(lx,i,orth,prev,verbose)=>{
 			alpha=true; //獨字時多出的 a, parseLex 時補上
 			lx=lx.slice(1);	
 		}
+		verbose&&console.log(lx,orth)
 
 		let at1=orth.indexOf(lx.slice(0,lx.length-1),prev);//開頭符合
 		let at2=-1;
@@ -22,7 +23,7 @@ const tryLexeme=(lx,i,orth,prev,verbose)=>{
 
     //deal with 'cEv',['c','ev']  , e=>E 
 		if (i&&at1==-1 && at2>-1) { //try auto capitalize following lexeme
-			if (lx.charAt(0).match(/[eiuo]/) ) {
+			if (lx.charAt(0).match(/[eiuoūīā]/) ) {
 				lx=lx.charAt(0).toUpperCase()+lx.slice(1);
 				cap=true; //開頭的元音轉大寫
 			}
