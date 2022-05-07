@@ -2,7 +2,7 @@
 export * from "./src/ipa.js"
 export * from "./src/order.js"
 export * from "./src/lexification.js"
-export * from "./src/lex.js"
+export * from "./src/formulation.js"
 export * from "./src/syllable.js"
 
 import {toIndicXML,toIndic,fromDevanagari,fromDevanagariWord,enumTransliteration,DEVAPAT,DEVAPAT_G} from "./src/indic.js"

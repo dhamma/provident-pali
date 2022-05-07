@@ -1,5 +1,5 @@
 import {lexify} from './lexification.js'
-import {stringifyLex,parseLex,orthOf} from './lex.js'
+import {formulate,parseFormula,orthOf} from './formulation.js'
 import {fromIAST,toIAST} from './iast.js';
 let pass=0,test=0;
 console.clear()
@@ -48,15 +48,30 @@ const tests=[
 
 	['almrIyYANdsVsnvIsEsM',['almV','arIy','YAN','dsVsnvIsEsM'],'almV3arIy0YAN0dsVsnvIsEsM',['alm<V','','a>rIy','','YAN','','dsVsnvIsEsM']],
 	['almtVTdstrEn',['almV','atVT','dstrEn'], 'almV3atVT0dstrEn' , [ 'alm<V', '', 'a>tVT', '', 'dstrEn'] ],
-	['shAv',['sh','ev'],'sh3Ev',['sh','A','E>v']],
+	['shAv',['sh','ev'],'sh4Ev',['sh','A','E>v']],
 	['umVmtVtOsVmI',['umVmtVtO','asVmI'],'umVmtVtO2asVmI',['umVmtVtO','','a>sVmI']],
 	['pYVctVtysVs',['pYVc','tyO','asVs'],'pYVc3tyO3asVs' ,[ 'pYVc', 'tVt', 't>y<O', '', 'a>sVs' ] ],
 	['sOatVtAsUtVtM',['sO','atVtA','sUtVtM'],'sO0atVtA0sUtVtM',['sO','','atVtA','','sUtVtM']],
 
 	['smADUApnIsM',['smADI','upnIsM'],'smADI3UpnIsM',['smAD<I','UA','U>pnIsM']],
-	['sAlAnnVdO',['sAlA','aAnnVdO'],'sAlA2AAnnVdO',['sAlA','','AA>nnVdO']],
+	['sAlAnnVdO',['sAlA','aAnnVdO'],'sAlA3AAnnVdO',['sAlA','','AA>nnVdO']],
+	['BsVsArAmtmnUyUtVtA',['BsVs','aArAmtmV','anUyUtVtA'],'BsVs0AArAmtmV3anUyUtVtA',['BsVs','','AArAmtm<V','','a>nUyUtVtA'] ],
+	['anIAkWVXA',['anIAk','XA'], 'anIAk3XA',['anIAk','WVX','X>A']],
+	['KVvAvUsO',['KO','aAvUsO'],'KO3AAvUsO',['K<O','Vv','AAvUsO']],
+	['DmVmtVTEnkO',['DmVm','TEnkO'],'DmVm3TEnkO',['DmVm','tVT','T>EnkO']],
+	['PrUsAvAcO',['PrUs','vAcO'], 'PrUs65vAcO',['PrUs','A','vAcO']],
+	['kIYVcIdEv',['kIYVcI','ev'],'kIYVcI5Ev',['kIYVcI','d','Ev']],
+	['cdInVnmAdIyE', ['c','adInVnmV','aAdIyE'], 'c2adInVnmV1AAdIyE', [ 'c', '', 'a>dInVnm<V', '', 'AAdIyE' ]], 
+	['cAtI',['c','tI'],'c65tI',['c','A','tI']],
 
-	// ['cdInVnmAdIyE', ['c','adInVnmV','aAdIyE'], 'c2adInVnmV3AAdIyE', [ 'c', '', 'a>dInVnm<V', '', 'AAdIyE' ]], 
+	['cApAhM',['c', 'apI', 'ahM'], 'c3apI4ahM', ['c','A', 'a>p<I','A', 'a>hM'] ],
+	['kIYVcApAhM',  ['kIYV', 'cApAhM'], 'kIYV0cApAhM', ['kIYV', '','cApAhM']  ],
+
+	['sIAlbVbt',[ 'sIAl', 'bt'], 'sIAl3bt',[ 'sIAl', 'bVb','b>t']],
+
+	// ['XAnsOvEtM',['XAnsO','ev','etM'],'XAns5Ov3EtM',['XAnsO','','E>v','','EtM'] ],
+	['sIAlbVbtUpAdAnM',[ 'sIAl', 'bt', 'upAdAnM'], 'sIAl3bt0UpAdAnM',[ 'sIAl', 'bVb','b>t', '','UpAdAnM']]
+
 ]
 for (let i=0;i<tests.length;i++) {
 	let [orth, lexemes, testlexstr, testlex ,verbose]=tests[i];
@@ -64,10 +79,10 @@ for (let i=0;i<tests.length;i++) {
 	const lex =lexify(orth,lexemes,verbose==1);
 	if (verbose==1) console.log('lex',lex)
 
-	const lexstr=stringifyLex(lex,verbose==2);
+	const lexstr=formulate(lex,verbose==2);
 	if (verbose==2) console.log('lexstr',lexstr)
 
-	const parsed=parseLex(lexstr,verbose==3);
+	const parsed=parseFormula(lexstr,verbose==3);
 	test++;
 	if (lexstr == testlexstr && orth==orthOf(lex,verbose==4) 
 		&& parsed.join(",")===lex.join(",") && lex.join(",")===testlex.join(",")) {
@@ -80,12 +95,12 @@ for (let i=0;i<tests.length;i++) {
 			console.log('expect:',testlex);
 		}
 		if (lexstr!==testlexstr){
-			stringifyLex(lex,true)
-			console.log('stringifyLex:',lexstr);
-			console.log('expect      :',testlexstr);
+			formulate(lex,true)
+			console.log('formulate:',lexstr);
+			console.log('expect   :',testlexstr);
 		}
 		if (parsed.join(',')!==lex.join(',')) {
-			parseLex(lexstr,true);
+			parseFormula(lexstr,true);
 			console.log('lexstr  :',lexstr);
 			console.log('parsed  :',parsed);
 			console.log('expect  :',lex);

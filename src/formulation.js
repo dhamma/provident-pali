@@ -6,18 +6,50 @@ import {DeNormLexeme,NormLexeme,samecount,sameendcount} from './lexeme.js'
   字串式以數字分隔詞件，連音從數字和前後字元，按照規則產生。
 */
 
-export const parseLex=(_str,verbose)=>{
+/** formulate lex to a string*/
+export const formulate=(lex,verbose)=>{
+	let out='';
+	if (lex.length<3) return ''
+  if (lex.length%2==0) return '';
+	for (let i=0;i<lex.length;i++) {
+		if (i%2) {
+			const sandhi=lex[i]||'';
+			const leftconsumed=lex[i-1].indexOf('<')>-1;
+			const rightconsumed=lex[i+1].indexOf('>')>-1;
+			const leftv=getTailSyl(lex[i-1].replace('<',''));
+			const rightv=getHeadSyl(lex[i+1].replace('>',''));
+
+			let rule=getRule(leftv,rightv,leftconsumed,rightconsumed,sandhi,verbose);
+			verbose&&console.log('RULE', rule,leftv,'+',rightv,'='+sandhi,verbose)
+			if (rule===ELIDENONE) {
+				const left=getLeft(lex[i-1]);
+				const right=getRight(lex[i+1]);
+				if ( (left && left!=='a') && !right) rule=ELIDELEFT;
+				else if (right && !left) rule=ELIDERIGHT;
+			}
+			if (sandhi && rule==ELIDENONE) rule=ELIDEBOTH;
+			verbose&& console.log('formulate',leftv,rightv,'sandhi',sandhi,'rule',rule)
+			out+=rule;
+		} else {
+			let lexeme=lex[i].replace('>','').replace('<','');
+			lexeme=DeNormLexeme[lexeme]||lexeme;
+			out+=lexeme;
+		}
+	}
+	return out;
+}
+export const parseFormula=(_str,verbose)=>{
 	const out=[];
 	let prev=0, str=sbProvident(_str),
 	consumedhead='', //被吃掉的頭
 	extra='';
 	const addLexeme=lexeme=>{
+		// lexeme=lexeme.replace(/^\d/,'').replace(/\d$/,'');//prevention
 		if (lexeme.match(/\d/)) {
 			 if (lexeme.indexOf('<')>-1 || lexeme.indexOf('>')>-1) {
 			 	  console.log('error single char lexeme',_str,lexeme);
 			 } else {
-			 	  lexeme=lexeme.replace(/^\d/,'').replace(/\d$/,'');//prevention
-			 	  const p=parseLex(lexeme);
+			 	  const p=parseFormula(lexeme);
 			 	  out.push(...p);
 			 }
 		} else out.push(lexeme);
@@ -50,70 +82,42 @@ export const parseLex=(_str,verbose)=>{
 
 	str.replace(/([a-zA-ZĪŪ])(\d+)([a-zA-ZĀĪŪāūī])/g,(m,left,jt,right, idx)=>{
 		// eat one more char for leading long A, other vowel UA/IA converted one char Ū Ī
+		let adv=0;
 		if ( (right=='a'||right=='A') && str[idx+m.length]==='A' ) {
-		   right+='A';  
+		   right+='A';
+		   adv=1;
 		}
 		const {join,sandhi,rightconsumed,leftconsumed}=getJoinType(jt,left,right,verbose);
 		verbose&&console.log('sandhi',sandhi,'join',join,'left',left,'right',right,'consumed l',leftconsumed,'r',rightconsumed);
 
-		const lexeme=leftconsumed?prevLexeme(idx,(idx&&join?'<':'')+left,join): prevLexeme(idx,left,join);
-		// verbose&&console.log('lexeme',lexeme)
+		let lexeme=leftconsumed?prevLexeme(idx,(idx&&join?'<':'')+left,join): prevLexeme(idx,left,join);
 
 		addLexeme(lexeme)
 		out.push(extra+sandhi);
 		extra='';
 		
 		consumedhead=rightconsumed?right:'';
-		verbose&&console.log('rightconsumed',rightconsumed)	
+		// verbose&&console.log('rightconsumed',rightconsumed)	
 		if (join===ELIDERIGHT) idx-=left.length; //沒用到的左邊，補回長度
 		else if ( !rightconsumed ||join===ELIDELEFT||join===ELIDENONE) idx-=right.length; //沒用到的右邊，補回長度
 		else {
 			idx-=right.length;
 			verbose && console.log('right',right,'prev',idx+m.length,rightconsumed,left,sandhi)
 		}
-		prev=idx+m.length;
+		prev=idx+m.length+adv;
 		verbose&&console.log('prev',prev,str.slice(prev))
 	})
 	const lexeme=prevLexeme(str.length);
+
 	addLexeme(lexeme);
 
 	return out.map(mbProvident);
 }
 
-export const stringifyLex=(lex,verbose)=>{
-	let out='';
-	if (lex.length<3) return ''
-  if (lex.length%2==0) return '';
-	for (let i=0;i<lex.length;i++) {
-		if (i%2) {
-			const sandhi=lex[i]||'';
-			const leftconsumed=lex[i-1].indexOf('<')>-1;
-			const rightconsumed=lex[i-1].indexOf('<')>-1;
-			const leftv=getTailSyl(lex[i-1].replace('<',''));
-			const rightv=getHeadSyl(lex[i+1].replace('>',''));
-
-			let rule=getRule(leftv,rightv,leftconsumed,rightconsumed,sandhi,verbose);
-			verbose&&console.log('RULE', rule,leftv,'+',rightv,'='+sandhi)
-			if (rule===ELIDENONE) {
-				const left=getLeft(lex[i-1]);
-				const right=getRight(lex[i+1]);
-				if ( (left && left!=='a') && !right) rule=ELIDELEFT;
-				else if (right && !left) rule=ELIDERIGHT;
-			}
-			verbose&& console.log('stringifyLex',leftv,rightv,'sandhi',sandhi,'rule',rule)
-			out+=rule;
-		} else {
-			let lexeme=lex[i].replace('>','').replace('<','');
-			lexeme=DeNormLexeme[lexeme]||lexeme;
-			out+=lexeme;
-		}
-	}
-	return out;
-}
 /** 返回 展開式的 正字*/
 export const orthOf=(lex,verbose)=>{
 	if (typeof lex==='string') {
-		lex=parseLex(lex);
+		lex=parseFormula(lex);
 		if (lex.length<3) return '';
 	}
 
