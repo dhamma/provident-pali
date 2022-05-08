@@ -38,11 +38,10 @@
 
    詞元     lemma   ： 不能進一步拆分，用以查找字典的關鍵字
 
-   復合詞件  compound ： 這類詞件還可進一步拆分，
-               如 abhidhamma=abhi-dhamma , nāmarūpa=nāma-rūpa，本系統並不在意lemma的語言學意義的詞性，
-               compound 由計算機發現、經常出現的組合方式，可能只是簡單的列舉，也有可能產生了新的語義。
+   復合詞件  compound ： 這類詞件還可進一步拆分，如 abhidhamma=abhi-dhamma , nāmarūpa=nāma-rūpa，
+本系統並不在意lemma的語言學意義的詞性，compound 是經常出現的組合方式，可能只是簡單的列舉，也有可能產生了新的語義。
                
-               例 : patta-cīvara (缽與衣，漢傳作衣缽，指傳承),  jātarūpa-rajatā (金銀，兩種可作為貨幣的貴金屬並列，強調其金融屬性)
+   例 : patta-cīvara (缽與衣，漢傳作衣缽，指傳承),  jātarūpa-rajatā (金銀，兩種可作為貨幣的貴金屬並列，強調其金融屬性)
 
    詞根   root    ： 即巴利語法意義上的詞根，通常為梵語。
 
@@ -56,37 +55,66 @@
 
    拆詞   lexify   ：已知正詞及詞件列表，產生詞件序，即將 orth和所包含的lexeme 化為 lex。
    
-   詞譜   formula  ： lex 在文字檔的儲存形態（詞件加結合方式），方便閱讀檢索，可無損還原為正詞。
+   詞譜   formula  ： 詞件以及以數字表達的結合方式。Provident Pali定義的巴利詞儲存格式。
 
-   結合方式 joiner： 兩個詞件的結合方式，數字。表示0直接結合，1刪左，2刪右，3以上按規則結合。
+   譜詞 formulate ：從 lex 轉成formula 的動作，連音的變化，轉為數字分隔符。
+   
+   結合方式 joiner： 兩個詞件的結合方式，數字。表示0直接結合，1刪左，2刪右，大於3按規則結合。
   
    拆分表 decomposition ： orth 和所屬詞件的對表。
    
    拆詞   factorize ： 將正詞依拆分表，得其詞件列表。
    
-## 分解引導
+   
+## 拆分表格式 decomposision
+   分解引導表 記錄了所有經文中出現的正詞以及詞件，詞件以 - 隔開，例如：
+
+       brāhmaṇakumāro=brāhmaṇa-kumāro
+       padīpopamasuttaṃ=padīpa-upama-suttaṃ
 
 ## 拆分原則
    最短拆分：
-   jātarūparajatasuttaṃ 拆為 jātarūparajata-suttaṃ 而不拆成 jātarūpa-rajata-suttaṃ
-   因為 存在 jātarūparajata=jātarūpa-rajata，也許字典並沒有收錄 jātarūparajata 的解釋，
-   但容易進一步拆分： (jātarūpa-rajata)-suttaṃ ，從而領會其涵義。
+  如果 存在 jātarūparajata=jātarūpa-rajata，則  jātarūparajatasuttaṃ 應拆為 jātarūparajata-suttaṃ 而不拆成 jātarūpa-rajata-suttaṃ，盡可能保留詞的結構信息。
+  遞迴拆分可得： (jātarūpa-rajata)-suttaṃ 。
 
 ## 詞件式語法 (Syntax of Lex)
 
     結構 詞件,結合方式(數字),詞件...
-    0 為直接合併
-    pattacīvara=patta0cīvara  4👑☸ E
+    0 表示相接：    patta0cīvara → pattacīvara 
     
-    1 刪去左邊一個字元： paññā1indriya → paññindriya  (ā被刪去)
+    1 刪去左邊音節： paññā1indriya → paññindriya  (ā被刪去)
     
-    2 刪去右邊一個字元：eko2eva → ekova (第二個 e 被刪去)
+    2 刪去右邊音節：eko2eva → ekova (第二個 e 被刪去)
     
     3~9 按規則結合
     padopama = pada3upama (3 表示套用  a+u 的第3條規則 → o)
     bojjhaṅga = bodhi3aṅga ( dhi+a=>jjha )
          
+## 經文處理步驟
+   
+    1) 列舉經文的每一個詞，查拆分表，取得詞件，如果找不到（假定是 lemma），原封不動。
+    
+    2) 以正詞和詞件，得到詞件序(lexify)。詞件序記錄了 a+u 合併為 o的信息。
+    詞件序在內存的表達是：詞件序陣列元素有「詞件*2-1」個，即    ["padīp<a","o","u>pama","","suttaṃ"]。
+    
+    3) formulate 詞件序。formula 為  "padīpa3upama0suttaṃ" ，數字隔開了兩個詞件， 若要還原為正詞，系統會將 a3u ( 表示 a+u  的第3條組合規則 ) 會轉為 o 。
 
+    將 padīpopamasuttaṃ (orth形態) 替代為 padīpa3upama0suttaṃ (formula 形態) 儲存於文本 ，好處如下：
+    
+    一）經文可脫離詞件拆分表存在，不必查表，簡單的轉換即可得組合方式和正詞形態。
+    
+    二）建置全文檢索，可大幅降少 token(檢索單元) 的數量，若不拆分，會產生大量出現次數很少的token。
+    
+    三）容易查字典。padīpa upama suttaṃ 都是常見詞，一查即得，但 沒有字典會收錄 "padīpopamasuttaṃ" ，即使是收錄諸多辭典的 pced （巴利三藏電子辭典）也無法正確拆分 ，會拆成「padīpo-pama-suttaṃ」，因為詞典收錄了「padīpo」  ，然而這是有誤導性的，會讓初學者誤以為是 padīpa的「主格」（事實上是依主釋的屬格），而  pama 和 upama 更是完全不同的單字。
+    
+    連音造成查詞典的困難，這是初學巴利語極高的門檻，因為查不到單詞的挫敗感，影響詞彙的積累效率，詞彙量上不來，就談不上流暢的閱讀，包括本人在內，很多人都在這個階段打了退堂鼓。
+    
+    四）經由正則表達式，可以很容易檢出相似詞，如「某某喻經」 /\d+upama0suttaṃ/ ，而不必考慮連音，如 「 opamasuttaṃ, upamasuttaṃ, ūpamasuttaṃ」
+    
+
+如果規則改變，例如 a+u=o 改為第 4 條規則。只要將分隔數字改為 "-" ，就可以將formula退化為詞件，重新 lexify 和 formulate 即可得到新的formala。
+連音規則見 src/sandhi.js，為說明方便，以上例子採用 IAST表達 ，但目前只能拆分provident 格式的文本。
+ 
 ## API 
 
     lexemeOf : 取formula包含的詞件
@@ -94,3 +122,5 @@
     formulate  ：將  lex 轉為 formula
     parseFormula ：轉formula轉為 lex
     lexify   ：將orth和lexeme，產生lex
+    
+ 詳細用法見 src/test-factorization.js
