@@ -2,8 +2,8 @@
 export const NormLexeme={
 	'bODI':'bOjVJ',
 	'smVbODI':'smVbOjVJ',
-	'vVyy':'bVby',
-	'vVyyYV':'bVbyYV', //can be removed if smarter
+	// 'vVyy':'bVby',
+	// 'vVyyYV':'bVbyYV', //can be removed if smarter
 }
 export const DeNormLexeme={}
 export const samecount=(s1,s2)=>{

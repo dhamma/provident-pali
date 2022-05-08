@@ -8,10 +8,15 @@ export const Rules={ //規則號不得為 0,1,2
     'a<A=m':'4',
 	'a<A=Vv':'5',
 	'a<A=d':'6',
+	'a-A=r':'7',
+	'a<A=t':'9',
+	'a-AA=r':'3',
 	'a<I=E':'3',
 	'a<I=A':'4',
 	'a<I=IA':'5',
 	'a-I=y':'6',
+	'a-I=m':'7',
+
 	'a<E=E':'3',
 	'a<E=A':'4',
 	'a-E=d':'5',
@@ -29,33 +34,44 @@ export const Rules={ //規則號不得為 0,1,2
 	'a<O=U':'3',
 
 	'a<Ū=UA':'3', //左邊的 UA 要用 Ū 表示，但sandhi 不用
-	'a<Ī=IA':'3',  // IA 也是 ， 
+	'a<Ī=IA':'4',  // IA 也是 ， 
+	'a<Ī=E':'5',
 	'a<t=nVt':'4', 
+	'a<v=bVb':'5',
 
 	'A<AA=':'3',  //但 AA 不轉為 Ā
 	'A+U=UA':'3',
 	'A+I=IA':'3',
 	'A+I=E':'4',
 	'A-I=y':'5',
+	'A-I=r':'6',
+	'A-I=t':'7',
 	'A-E=y':'4',
 	'A<A=y':'3',
 	'A<A=m':'4',
 	'A+A=E':'5',
+	'A+A=A':'6',
+	'A+A=':'7',
 	'M>AA=m':'3',  //kImAnIsMs << kIM-aAnIsMs, remove left, keep right
 	'M+A=A':'3',
 	'M+A=m':'4',
 	'M+A=d':'5',
+	'M+A=':'6',
+	'M+A=nA':'7',
 	'M+E=A':'3',
 	'M+b=bVb':'3',
 	'M+U=UA':'3',
 	'M+I=IA':'3',
-	'M>I=y':'4',
+	'M+I=I':'4',
+	'M>I=y':'5',
+	'M+I=':'6',
 	'M+Ī=A':'3',
 	'M+g=NVg':'3',
 	'M+p=pVp':'3',
 	'M+k=NVk':'3',
 	'M+J=jVJ':'3',
 	'M+X=WVX':'3',
+	'M+y=YVY':'3',//sukhaññeva=sukhaṃ-yeva
 
 
 	'I+I=IA':'3',
@@ -73,7 +89,11 @@ export const Rules={ //規則號不得為 0,1,2
 
 	'I<d=nVd':'3',
 	'I+U=UA':'3',
-	'I>aA=':'3',
+	// 'I>aA=':'3',  //use 1 instead
+	'I+AA=I':'4',
+	'I-AA=r':'5',
+	'I<AA=':'6', //kucchisayā=kucchi-āsayā
+
 	'I>E=Vv':'3',
 	'I>E=Vp':'4',
 	'I-E=d':'5',
@@ -82,17 +102,21 @@ export const Rules={ //規則號不得為 0,1,2
 	'I<D=nVD':'3',
 	'I>t=IA':'3', //只有接 t可能長音化
 	'I>k=IA':'3', //長音化
+	'Ī+A=A':'3',
 	'Ī+U=UA':'3',
 
 	'U+A=UA':'3', //長音化
 	'U+A=Vv':'4',
 	'U+A=A':'5',
 	'U+A=VvA':'6',
+	'U+A=O':'7',
+	'U+A=':'8',
 
 	'U+I=U':'3',
 	'U+I=O':'4',
 	'U+I=UA':'5',
-	'U+U=UA':'6',
+	'U+U=UA':'3',
+	'U-U=h':'4',
 	'U>E=Vv':'3',
 	'U-E=d':'4',
 	'U-E=r':'5',
@@ -100,11 +124,16 @@ export const Rules={ //規則號不得為 0,1,2
 	'U<v=bVb':'3',
 	'U<D=nVD':'3',
 	'U>t=UA':'3', //長音化
+	'U<t=tVt':'4',
+	'U<tA=tVt':'4',
+	'U>t=UA':'3',
 	'E+A=A':'3',
 	'E+A=Vy':'4',
 	'E+A=VyA':'5',
 	'E>AA=Vy':'5',
+	'E+A=':'6',
 	'E+U=UA':'3',
+	'E-I=r':'3',
 
 	'O+A=':'3',
 	'O+A=Vv':'4',
@@ -116,13 +145,23 @@ export const Rules={ //規則號不得為 0,1,2
 	'O-E=y':'4',
 	'O-E=v':'5',
 	'O>AA=Vv':'3',
-	'y+v=bVb':'2', //this is a special rule for udaya+vaya  ==>udayabbaya
+	'O-U=v':'3',//vammikovupacīyati=vammiko-upacīyati
 	'V+A=':'3',
 	'V+A=A':'4',
 	'V+U=UA':'3',
 
+
+// might be vri typo , need to fix original text
+	'V+v=':'4',   //sātaccamuccati=sātaccam-vuccati
+	'M+v=m':'4' , //nibbānamuccati [ 'nibbānaṃ', 'vuccati' ]
+
+ 	'a<s=r':'9',//pahūtarattaratanāya [ 'pahūta', 'satta', 'ratanāya' ]
+
 	//reserve rules
 	//01 => A insert A
+
+	// 'y+v=bVb':'2', //this is a special rule for udaya+vaya  ==>udayabbaya
+
 }
 const PAIRING='|', EQUAL='='; //pairing left and right as a search key
 export const ELIDENONE=0,ELIDELEFT=1, ELIDERIGHT=2 ,ELIDEBOTH=3;
@@ -220,8 +259,8 @@ export const getHeadSyl=str=>{ //return vowel or consonant
 	const ch1=str.slice(0,1), ch2=str.slice(0,2);
 	if (ch2==='aA') return 'aA'; //not changing, becuase a is dropped automatically
 	else if (ch2==='AA') return 'AA';
-	else if (ch2==='iA') return 'Ī';
-	else if (ch2==='uA') return 'Ū';
+	else if (ch2==='iA' || ch2=='IA') return 'Ī';
+	else if (ch2==='uA' || ch2=='UA') return 'Ū';
 	else if (ch1==='ū') return 'Ū';
 	else if (ch1==='ī') return 'Ī';
 	else if (ch1.toLowerCase()==='a') return 'A';

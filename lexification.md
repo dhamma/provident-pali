@@ -1,4 +1,4 @@
-# 巴利長詞的拆分 Segmentation of Pali Word
+# 巴利長詞的分解 Factorization of Pali Word
 
 ## 長詞問題
     1. 查字典的困難，初學者最大的難題在單字在字典查不到，也無法實現點查字典的功能。
@@ -15,7 +15,7 @@
        由於這些英文單詞的形式上並沒有線索，所以必須一一記錄。
        
        而對中文來說，詞本身就有一定的分類作用，
-       如 車(is-a)  ：腳踏車、汽車、馬車、火車、戰車、          （不同類的車 is-a）
+       如 車(is-a)  ：腳踏車、汽車、馬車、火車、戰車、         （不同類的車 is-a）
           船(has-a) ：船桅、船塢、船艙、船員、船長、船隊、船主   （屬於船的  has-a ）
        將巴利詞拆分成構件，也能起到類的分類作用。
 
@@ -30,27 +30,39 @@
 
 以下名詞的界定為方便實作及講解，不一定符合嚴格形態學的定義。
 
-   正詞 orth (orthograph) 詞經文原稿上呈現的形式，以空格或點符號隔開  ‘atthi kāyo’ti 為三個正詞
-   ti 是 iti 的省略。 單獨 ti 本身是「三」。
-   這種現象稱為同形字(homograph)。
-   在詞典中，ti 和 iti 是兩個獨立的條目 (lemma)。
-   
-   詞件        lexeme  (這裡詞位是可構成單詞的零件，而不是指字典中去掉詞尾前後綴的詞條)
-      詞元     lemma   不能進一步拆分，用以查找字典的關鍵字
-      復合詞位  compound 這類詞還可進一步拆分，
-               如 abhidhamma=abhi-dhamma , nāmarūpa=nāma-rūpa，本系統並不在意lemma的語言學意義的詞性
-               compound 由計算機發現、經常出現的組合方式，可能只是簡單的列舉，也有可能產生了新的語義。
-               e.g : patta-cīvara (缽與衣，漢傳作衣缽，指傳承),
-                     jātarūpa-rajatā (金銀，兩種可作為貨幣的貴金屬並列，強調其金融屬性)
+   正詞 orth (orthograph) ：詞在經文原稿上呈現的形式，以空格或點符號隔開  ‘atthi kāyo’ti 為三個正詞
+   ti 是 iti 的省略。 單獨 ti 本身是「三」。 這種現象稱為同形字(homograph)。 在詞典中，ti 和 iti 是兩個獨立的條目 (lemma)。
 
-   詞根   root     即巴利語法意義上的詞根，通常為梵語。
-   詞基   base     可在其上加前後綴。
-   連音   sandhi   左詞的尾與右詞的頭，合併成其他的音。
-   詞典   lexicon  以lemma為鍵值的數據結構，返回 詞根詞基性數格時態等信息。
-   詞件式 lex         組成正詞的lexeme序列以及連音。可還原為正詞。
-   拆分   lexify       已知正詞及詞件，產生詞件式，即將 orth 化為 lex。
-   詞譜   formula   以compound為鍵值，返回 lex (目前限定只有一種拆分方式) 
-   拆詞   factorize  將正詞依詞譜，得其詞件列表。
+
+   詞件        lexeme  (這裡詞件是可構成單詞的零件，而不是指字典中去掉詞尾前後綴的詞條)
+
+   詞元     lemma   ： 不能進一步拆分，用以查找字典的關鍵字
+
+   復合詞件  compound ： 這類詞件還可進一步拆分，
+               如 abhidhamma=abhi-dhamma , nāmarūpa=nāma-rūpa，本系統並不在意lemma的語言學意義的詞性，
+               compound 由計算機發現、經常出現的組合方式，可能只是簡單的列舉，也有可能產生了新的語義。
+               
+               例 : patta-cīvara (缽與衣，漢傳作衣缽，指傳承),  jātarūpa-rajatā (金銀，兩種可作為貨幣的貴金屬並列，強調其金融屬性)
+
+   詞根   root    ： 即巴利語法意義上的詞根，通常為梵語。
+
+   詞基   base    ： 可在其上加前後綴。
+
+   連音   sandhi  ： 左詞的尾與右詞的頭，合併成其他的音。
+
+   詞典   lexicon ： 以lemma為鍵值的數據結構，返回 詞根詞基性數格時態等信息。
+
+   詞件序 lex      ：組成正詞的詞件以及連音變化。
+
+   拆詞   lexify   ：已知正詞及詞件列表，產生詞件序，即將 orth和所包含的lexeme 化為 lex。
+   
+   詞譜   formula  ： lex 在文字檔的儲存形態（詞件加結合方式），方便閱讀檢索，可無損還原為正詞。
+
+   結合方式 joiner： 兩個詞件的結合方式，數字。表示0直接結合，1刪左，2刪右，3以上按規則結合。
+  
+   拆分表 decomposition ： orth 和所屬詞件的對表。
+   
+   拆詞   factorize ： 將正詞依拆分表，得其詞件列表。
    
 ## 分解引導
 
@@ -61,19 +73,24 @@
    但容易進一步拆分： (jātarūpa-rajata)-suttaṃ ，從而領會其涵義。
 
 ## 詞件式語法 (Syntax of Lex)
-    結構 詞件,合併方式(數字),詞件...
+
+    結構 詞件,結合方式(數字),詞件...
     0 為直接合併
-    pattacīvara=patta0cīvara  
-
-    字串型 (節省空間，內部儲存格式）：Lex String
-    padopama = pada1upama (1 表示套用  a+u 的第1條規則 =>o)
-    bojjhaṅga = bodhi2aṅga ( dhi+a=>jjha )
+    pattacīvara=patta0cīvara  4👑☸ E
+    
+    1 刪去左邊一個字元： paññā1indriya → paññindriya  (ā被刪去)
+    
+    2 刪去右邊一個字元：eko2eva → ekova (第二個 e 被刪去)
+    
+    3~9 按規則結合
+    padopama = pada3upama (3 表示套用  a+u 的第3條規則 → o)
+    bojjhaṅga = bodhi3aṅga ( dhi+a=>jjha )
          
-    展開型（顯示用）Lex Array
-    元素個數為詞件乘二減一 = [ "pad<a", "o" , "u>pama" ]  [ "bo<dhi", "jjha" , "a>ṅga" ]  
 
-    1. 偶數元素為詞件，奇數元素為連音。
+## API 
 
-    2. 偶數元素 把 < 和 > 去掉，即為詞件。
-
-    3. <右邊的字 和 >左邊的部分去掉，替代為取代為兩個詞件中間的連音。
+    lexemeOf : 取formula包含的詞件
+    orthOf   ： 取formula所代表的正詞
+    formulate  ：將  lex 轉為 formula
+    parseFormula ：轉formula轉為 lex
+    lexify   ：將orth和lexeme，產生lex

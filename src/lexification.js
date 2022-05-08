@@ -12,7 +12,7 @@ import {sbProvident,mbProvident} from './sandhi.js'
 const tryLexeme=(lx,i,orth,prev,final,verbose)=>{
 		let cap=false,alpha=false;
 		if (i&&lx.slice(0,2)=='aA') {
-			alpha=true; //獨字時多出的 a, parseLex 時補上
+			alpha=true; //獨字時多出的 a, parseFormula 時補上
 			lx=lx.slice(1);	
 		}
 		verbose&&console.log(lx,orth)
@@ -66,6 +66,7 @@ export const lexify=(mborth,lexemes,verbose)=>{
 		let at=-1;
 		if (~at1) at=at1;
 		else if (~at2 && i) at=at2;
+
 		if (at==-1) {
 			out.push(-1);//fail marker
 			return out;			

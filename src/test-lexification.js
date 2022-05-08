@@ -14,7 +14,6 @@ const tests=[
 	['ctUAhEn',['ctU','ahEn'],'ctU3ahEn',['ct<U','UA','a>hEn'] ],// ['catūhena',['catu','ahena'],'catu+ahena' ] ,//u+a=>ū
 	['atrIAD',['atrI','iD'],'atrI3ID',['atr<I','IA','I>D']],// ['atarīdha',['atari','idha'],'atari+1idha'],
 	['bOjVJNVg',['bODI','aNVg'],'bODI2aNVg',['bO<DI','jVJ','a>NVg' ]],// [ 'bojjhaṅga', ['bodhi','aṅga'] , 'bodhi-aṅga']
-	['udybVby',['udy','vVyy'],'udy2vVyy',['udy','bVb','vVy>y']],
 	['smVbOjVJNVg',['smVbODI','aNVg'],'smVbODI2aNVg',['smVbO<DI','jVJ','a>NVg']],
 	['dEvAsUrsNVgAmO',[ 'dEv', 'asUr', 'sNVgAmO'],'dEv3asUr0sNVgAmO',[ 'dEv', 'A','a>sUr', '','sNVgAmO']],
 	['smVbODIpTAnUsArInO',['smVbODI','pT','anUsArInO'],'smVbODI0pT3anUsArInO',['smVbODI','','pT','A','a>nUsArInO']],
@@ -27,7 +26,7 @@ const tests=[
 	['kOmE',['kU','imE'],'kU4ImE',['k<U','O','I>mE']],// ['kome',['ku','ime'],'ku+2ime',
 	['sAv',['s','iv'],'s4Iv', ['s','A','I>v']],           // ['sāva',['sa','iva'],'sa+1iva', ],
 	['atVtIksVsIAD',['atVtIksVs','iD'],'atVtIksVs5ID',['atVtIksVs','IA','I>D'] ] , // ['atthikassīdha',['atthikassa','idha'],'atthikassa+2idha'],
-	['bhUApkArsUtVtM',['bhU','upkAr','sUtVtM'], 'bhU6UpkAr0sUtVtM',[ 'bh<U', 'UA', 'U>pkAr', '', 'sUtVtM' ]],
+	['bhUApkArsUtVtM',['bhU','upkAr','sUtVtM'], 'bhU3UpkAr0sUtVtM',[ 'bh<U', 'UA', 'U>pkAr', '', 'sUtVtM' ]],
 	['aAyAmAnnVd',['aAyAm','aAnnVd'],'aAyAm0AAnnVd',['aAyAm','','AAnnVd']],
 	['atVtUApmA',['atVt','upmA'], 'atVt6UpmA' ,  ['atVt','UA','U>pmA']  ], // ['attūpamā',['atta','upamā'],'atta+1upamā',  ], //a+u => ū
 	['almatVt',['alm','atVt'],'alm0atVt',['alm','','atVt']],
@@ -70,8 +69,30 @@ const tests=[
 	['sIAlbVbt',[ 'sIAl', 'bt'], 'sIAl3bt',[ 'sIAl', 'bVb','b>t']],
 
 	// ['XAnsOvEtM',['XAnsO','ev','etM'],'XAns5Ov3EtM',['XAnsO','','E>v','','EtM'] ],
-	['sIAlbVbtUpAdAnM',[ 'sIAl', 'bt', 'upAdAnM'], 'sIAl3bt0UpAdAnM',[ 'sIAl', 'bVb','b>t', '','UpAdAnM']]
+	['sIAlbVbtUpAdAnM',[ 'sIAl', 'bt', 'upAdAnM'], 'sIAl3bt0UpAdAnM',[ 'sIAl', 'bVb','b>t', '','UpAdAnM']],
+	['sYVYgVgE',['sYVYA','agVgE'],'sYVYA7agVgE',['sYVY<A','','a>gVgE']],
+	['sptVtaNVgArOkIrI',['sptVtM','aNVgArE','okIrI'],'sptVtM1aNVgArE1OkIrI',['sptVt<M','','aNVgAr<E','','OkIrI']],
+	['stsVmIAtI',['stM','asVmIA','tI'],'stM6asVmIA0tI',['st<M','','a>sVmIA','','tI']],
+	['tTArUApAnAhM',['tTArUApAM','ahM'],'tTArUApAM7ahM',['tTArUApA<M','nA','a>hM']],
+	['tsVmAtIh',['tsVmA','ih'],'tsVmA7Ih', ['tsVmA','t','Ih']],
+	['vAtErItAnI',['vAt','iArItAnI'],'vAt5IArItAnI',['vAt','E','IA>rItAnI']],
+	['vIjVjnVtrIkAy',['vIjVjU','anVtrIkAy'],'vIjVjU8anVtrIkAy',['vIjVj<U','','a>nVtrIkAy']],
+	['vmVmIkOvUpcIAytI',['vmVmIkO','upcIAytI'],'vmVmIkO3UpcIAytI',['vmVmIkO','v','UpcIAytI']],
+	['dVvIrAvWVWM',['dVvI','aAvWVWM'],'dVvI5AAvWVWM',['dVvI','r','AAvWVWM']],
+	['ajVjtgVgE',['ajVj','agVgE'],'ajVj9agVgE',['ajVj','t','a>gVgE']],
+	['ctUtVtAlmVpI',['ctU','tAlmVpI'],'ctU4tAlmVpI',['ctU','tVt','t>AlmVpI']],
+	['CbVbIsODn',['C','vIsODn'],'C5vIsODn',['C','bVb','v>IsODn']],
+	['nmtVTI',['n','mE','atVTI'],'n0mE6atVTI',['n','','m<E','','a>tVTI']],
 
+	['bOjVJsUtVtM',['bODI','sUtVtM'],'bODI1sUtVtM',['bO<DI','jVJ','sUtVtM']],
+
+	['sAtcVcmUcVctI',['sAtcVcmV','vUcVctI'],'sAtcVcmV4vUcVctI',['sAtcVcm<V','','v>UcVctI']],
+	['phUAtrtVtrtnAy', [ 'phUAt', 'stVt', 'rtnAy' ],'phUAt9stVt0rtnAy', [ 'phUAt', 'r','s>tVt', '','rtnAy' ]]
+
+	// ['udybVby',['udy','vVyy'],'udy5vVyy',['udy','bVb','vVy>y']],
+
+	// ['aAhrIMsUAtI',['aAhrIMsU','tI'],'aAhrIMsUA4tI',['aAhrIMs<U','UA','tI'],2]
+	// ['tyAvEtM',['tyA','ev','etM'],'tyA2Ev0EtM',['tyA','','E>v','','EtM']] not pass yet 
 ]
 for (let i=0;i<tests.length;i++) {
 	let [orth, lexemes, testlexstr, testlex ,verbose]=tests[i];

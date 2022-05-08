@@ -62,8 +62,9 @@ export const parseFormula=(_str,verbose)=>{
 		// if (lexeme.charAt(0)==='A') lexeme='a'+lexeme;
 		lexeme+=last;
 
-		const nlexeme=NormLexeme[lexeme.replace('>','')];
+		const nlexeme=NormLexeme[lexeme.replace('>','').replace('<','')];
 		if (nlexeme) {
+			  lexeme=lexeme.replace('<',''); //workaround for bODI bOjVJ 
 				const cnt = samecount(nlexeme,lexeme);
 				if (cnt&&join) { //only apply when join is not 0
 					lexeme=lexeme.slice(0,cnt)+'<'+lexeme.slice(cnt);
@@ -93,7 +94,9 @@ export const parseFormula=(_str,verbose)=>{
 		let lexeme=leftconsumed?prevLexeme(idx,(idx&&join?'<':'')+left,join): prevLexeme(idx,left,join);
 
 		addLexeme(lexeme)
+
 		out.push(extra+sandhi);
+
 		extra='';
 		
 		consumedhead=rightconsumed?right:'';
@@ -108,7 +111,6 @@ export const parseFormula=(_str,verbose)=>{
 		verbose&&console.log('prev',prev,str.slice(prev))
 	})
 	const lexeme=prevLexeme(str.length);
-
 	addLexeme(lexeme);
 
 	return out.map(mbProvident);
