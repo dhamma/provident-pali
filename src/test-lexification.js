@@ -1,11 +1,9 @@
 import {lexify} from './lexification.js'
-import {formulate,parseFormula,orthOf} from './formulation.js'
+import {formulate,parseFormula,orthOf,lexemeOf} from './formulation.js'
 import {fromIAST,toIAST} from './iast.js';
 let pass=0,test=0;
 console.clear()
 const tests=[
-	
-	/* orth  , lexemes , formula,  lex */
 	['pAyM',['pI','aAyM'],'pI1AAyM',['p<I','','AAyM'] ], // ['pāyaṃ',['pi','āyaṃ'],'pi+-āyaṃ',  ],
 	['bhUaAgtO',['bhU','aAgtO'],'bhU0aAgtO',['bhU','','aAgtO']],
 	['cEv',['c','ev'],'c0Ev', ['c','','Ev'] ],  //ceva = ca+eva  , first Upper case Vowel convert to lower case before display
@@ -136,3 +134,4 @@ for (let i=0;i<tests.length;i++) {
 	}
 }
 console.log('test',test,'pass',pass)
+console.log(lexemeOf('pNIhIt0acVC0vgVgO'))

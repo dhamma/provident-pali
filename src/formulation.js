@@ -43,6 +43,7 @@ export const parseFormula=(_str,verbose)=>{
 	let prev=0, str=sbProvident(_str),
 	consumedhead='', //被吃掉的頭
 	extra='';
+	if (parseInt(_str).toString()==_str) return [];
 	const addLexeme=lexeme=>{
 		// lexeme=lexeme.replace(/^\d/,'').replace(/\d$/,'');//prevention
 		if (lexeme.match(/\d/)) {
@@ -153,15 +154,16 @@ export const lexemeOf=(lex,splitchar=LEXEME_SPLIT)=>{
 	let s='';
 
 	if (typeof lex==='string') {
-		s=m1.replace(/\d+/g,splitchar)
+		s=lex.replace(/\d+/g,splitchar)
 	} else {
 		for (let i=0;i<lex.length;i+=2) {
 			if (i) s+=splitchar;
 			s+=lex[i].replace(/[><]/g,'');
 		}
 	}
+	console.log(lex)
 	//auto convert following lexeme first vowel to lowercase.
-	s=s.replace(/(.)([AEIOU])/g,(m,m1,m2)=>m1==splitchar?m2.toLowerCase():m2);
+	s=s.replace(/(.)([AEIOU])/g,(m,m1,m2)=>m1==splitchar?m1+m2.toLowerCase():m1+m2);
 
 	return s
 }
