@@ -45,12 +45,12 @@ export const parseFormula=(_str,verbose)=>{
 	extra='';
 	if (parseInt(_str).toString()==_str) return [];
 	const addLexeme=lexeme=>{
-		// lexeme=lexeme.replace(/^\d/,'').replace(/\d$/,'');//prevention
+		lexeme=lexeme.replace(/^\d/,'').replace(/\d$/,'');//prevention
 		if (lexeme.match(/\d/)) {
 			 if (lexeme.indexOf('<')>-1 || lexeme.indexOf('>')>-1) {
 			 	  console.log('error single char lexeme',_str,lexeme);
 			 } else {
-			 	  const p=parseFormula(lexeme);
+			 	  const p=parseFormula(lexeme.replace());
 			 	  out.push(...p);
 			 }
 		} else out.push(lexeme);
@@ -161,7 +161,7 @@ export const lexemeOf=(lex,splitchar=LEXEME_SPLIT)=>{
 			s+=lex[i].replace(/[><]/g,'');
 		}
 	}
-	console.log(lex)
+
 	//auto convert following lexeme first vowel to lowercase.
 	s=s.replace(/(.)([AEIOU])/g,(m,m1,m2)=>m1==splitchar?m1+m2.toLowerCase():m1+m2);
 
