@@ -126,7 +126,6 @@ export const Rules={ //規則號不得為 0,1,2
 	'U>t=UA':'3', //長音化
 	'U<t=tVt':'4',
 	'U<tA=tVt':'4',
-	'U>t=UA':'3',
 	'E+A=A':'3',
 	'E+A=Vy':'4',
 	'E+A=VyA':'5',

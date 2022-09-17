@@ -4,6 +4,7 @@ export * from "./src/order.js"
 export * from "./src/lexification.js"
 export * from "./src/formulation.js"
 export * from "./src/syllable.js"
+export * from "./src/lexeme.js"
 
 import {toIndicXML,toIndic,fromDevanagari,fromDevanagariWord,enumTransliteration,DEVAPAT,DEVAPAT_G} from "./src/indic.js"
 import { doParts ,breakSyllable } from "./src/utils.js"

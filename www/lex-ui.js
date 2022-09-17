@@ -1,5 +1,5 @@
 
-const {xml2indic,fromIAST,toIAST, untease} =window.providentpali;
+const {xml2indic,fromIAST,toIAST, stringifyLex} =window.providentpali;
 const convertFromIAST=str=>{
     const s=fromIAST(str,{format:'xml'});
     document.querySelector("#output").value=s;
@@ -21,9 +21,9 @@ const showsutta=key=>{
     suttaid=key;
     document.querySelector("#output").value=str;
     convertFromProvident(str);
-    update_unteased();
+    update_stringLex();
 }
-const update_unteased=()=>{
+const update_stringLex=()=>{
     const provident=document.querySelector("#output").value;
     document.querySelector("#unteased").innerHTML=untease(provident);
     document.querySelector("#unteased_iast").innerHTML=toIAST(untease(provident));
@@ -32,14 +32,14 @@ const to_iast=()=>{
     clearTimeout(timer);
     timer=setTimeout(()=>{
         convertFromProvident(document.querySelector("#output").value);
-        update_unteased();
+        update_stringLex();
     },100);
 }
 const from_iast=()=>{
     clearTimeout(timer);
     timer=setTimeout(()=>{
         convertFromIAST(document.querySelector("#iast").value);
-        update_unteased();
+        update_stringLex();
     },100);
 }
 

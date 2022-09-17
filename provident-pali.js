@@ -6,12 +6,12 @@ var providentpali = (function (exports) {
         return str.split(reg_syllable);
     };
 
-    const doParts=(str,charpat, onPart)=>{
-        if (!str) return '';
-        const parts=str.split(/(<[^<]+>)/);
+    const doParts=(parts,charpat, onPart)=>{
+
         let out='';
         for (let j=0;j<parts.length;j++) {
-            if (parts[j][0]=='<') {
+            if (!parts[j]) continue;
+            if (parts[j][0]=='<' || parts[j][0]=='^') {
                 out+=parts[j];
                 continue;
             }
@@ -33,6 +33,7 @@ var providentpali = (function (exports) {
     };
     const RO_CHARS="aāiīuūenoṃcvkbdtphḍṭñṅṇsjgymrlḷ";
     const romanized_charset=/([aāiīuūenoṃcvkbdtphḍṭñṅṇsjgymrlḷ]+)/i;
+
     const breakIASTSyllable=str=>{
         str=str.toLowerCase();
         const words=str.split(romanized_charset);
@@ -56,10 +57,10 @@ var providentpali = (function (exports) {
     };
     const Vowels={
         '':'',
-        'a':'','ā':'A','i':'I','ī':'II','u':'U','ū':'UU','e':'E','o':'O'
+        'a':'','ā':'A','i':'I','ī':'IA','u':'U','ū':'UA','e':'E','o':'O'
     };
     const beginVowels={
-        'a':'a','ā':'aA','i':'i','ī':'iI','u':'u','ū':'uU','o':'o','e':'e',
+        'a':'a','ā':'aA','i':'i','ī':'iA','u':'u','ū':'uA','o':'o','e':'e',
     };
     const i2p={
         // '|':'|', //allow | in a word, convert from । ॥ and 
@@ -148,7 +149,6 @@ var providentpali = (function (exports) {
 
     const convertIASTSyllable=(syl,begin)=>{
         let out='';
-        
         if (isRomanized(syl)) {
             let m=syl.match(/^([kgṅcjñṭḍṇtdnpbylḷhsmrv]*)([aāiīuūeo])(ṃ?)$/);
             if (m) {
@@ -160,7 +160,8 @@ var providentpali = (function (exports) {
                     out+=beginVowels[v]+(niggatha?'M':'');
                 }
             } else {
-                return '??'+syl;
+                //return '??'+syl;
+                return syl+'V';
             }
         } else {
             return syl;
@@ -199,13 +200,17 @@ var providentpali = (function (exports) {
         const leadv='aeiou'.indexOf(ch);
         if (leadv>-1) {
             if (p[0]=='a'&&p[1]=='A') {out+='ā';i++;}
-            else if (p[0]=='i'&&p[1]=='I') {out+='ī';i++;}
-            else if (p[0]=='u'&&p[1]=='U') {out+='ū';i++;}
+            else if (p[0]=='i'&&p[1]=='A') {out+='ī';i++;}
+            else if (p[0]=='u'&&p[1]=='A') {out+='ū';i++;}
             else out+=ch;
             i++;
             ch=p[i];
         } 
-        let needvowel=false;
+        let needvowel=false, noEndingA=false;
+        if (p.charAt(p.length-1)=='V') { 
+            noEndingA=true;
+            p=p.slice(0,p.length-1);
+        }
         while (i<p.length) {
             ch=p[i];
             //allow sauddesaṁ
@@ -213,8 +218,16 @@ var providentpali = (function (exports) {
             const v='MAEIOU'.indexOf(ch);
             if (v>-1) {
                 if (v==0&&needvowel) out+='a'; // ṃ need 'a'
-                if (p[i+1]=='I') {i++;out+='ī';}
-                else if (p[i+1]=='U') {i++;out+='ū';}
+                if (p[i+1]=='A') { //long vowel
+                    i++;
+                    if (v==1) out+='ā'; //redundant
+                    else if (v==2) out+='ē'; //not exist in pali
+                    else if (v==3) out+='ī';
+                    else if (v==4) out+='ō';  //not exist in pali
+                    else if (v==5)out+='ū';
+                    else console.log('wrong vowel');
+                }
+                //else if (p[i+1]=='U') {i++;out+='ū'}
                 else out+='ṃāeiou'[v]||'';
                 i++; 
                 needvowel=false;
@@ -230,6 +243,7 @@ var providentpali = (function (exports) {
                 }
                 const c=p2i[cons];
                 if (!c ) {
+
                     if (isNaN(parseInt(cons))) {
                         return out+'??2'+p;
                     } else {
@@ -248,11 +262,13 @@ var providentpali = (function (exports) {
 
             }
         }
-        if (needvowel) out+='a';
+        if (needvowel && !noEndingA) out+='a';
         return out;
     };
-    const toIAST=str=>{
-        return doParts(str,/([a-zA-Z]+)/,toIASTWord).replace(/।/g,'.').replace(/॥/g,'.')
+    const toIAST=parts=>{
+    	if (!parts) return '';
+        if (typeof parts==='string') parts=parts.split(/(<[^<]+>)/);
+        return doParts(parts,/([a-zA-Z]+)/,toIASTWord).replace(/।/g,'.').replace(/॥/g,'.')
     };
 
     const devanagari={
@@ -456,6 +472,51 @@ var providentpali = (function (exports) {
         return out;
     };
 
+    /*
+    const JoinTypes={
+    	'':{ //default join
+    		'.e':'.E'
+    	},
+    	'1':{
+    		'.a':'.'
+    	}
+    }
+    */
+    const Rules={
+    	'.eE':'0',
+    	'.uO':'0',
+    	'.uUA':'1', // 
+    	// 'IAa':'0',
+    };
+    const JoinTypes={};
+    for (let rule in Rules) {
+    	const jt=Rules[rule];
+    	const left=rule.charAt(0);
+    	const right=rule.charAt(1);
+    	const sandhi=rule.slice(2);
+    	if (!JoinTypes[jt]) JoinTypes[jt]={};
+    	JoinTypes[jt][left+right]=(left+sandhi).trim();
+    }
+    // console.log(JoinTypes)
+    const untease=w=>{
+    	let s=w.replace(/V\-/g,'-')
+    	.replace(/\-a?/g,'-')
+    	.replace(/\-\+[a-zA-Z]/g,'-') //後面那個是多餘的
+    	.replace(/[a-zA-Z]\+\-/g,'-') //前面那個是多餘的
+    	.replace(/\-([aeiuo])/g,(m,m1)=>'-'+m1.toUpperCase())
+    	.replace(/([a-zA-Z])\+(\d*)([a-zA-Z])/g,(m,left, join, right)=>{
+    		if (!join) join='0'; //預設合併方式
+    		const jtype=JoinTypes[join];
+
+    		let repl=jtype[left+right];
+    		if (!repl) repl=jtype['.'+right];
+    		console.log('left',left,'jointype',join,'right',right,'replace',repl&&repl.replace('.',left));
+    		return repl&&repl.replace(/\./g,left)||'';
+    	})
+    	.replace(/\-/g,'');
+    	return s;
+    };
+
     const xml2indic=(str,script='')=>{
         if (!script) return str;
         if (script==='iast'|| script==='romn' || script==='ro') return toIAST(str);
@@ -490,6 +551,7 @@ var providentpali = (function (exports) {
     exports.fromIAST = fromIAST;
     exports.offtext2indic = offtext2indic;
     exports.toIAST = toIAST;
+    exports.untease = untease;
     exports.xml2indic = xml2indic;
 
     Object.defineProperty(exports, '__esModule', { value: true });
