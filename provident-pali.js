@@ -7,15 +7,17 @@ var providentpali = (function (exports) {
     };
 
     const doParts=(parts,charpat, onPart)=>{
-
         let out='';
+        if (typeof parts=='string') parts=[parts];
         for (let j=0;j<parts.length;j++) {
             if (!parts[j]) continue;
             if (parts[j][0]=='<' || parts[j][0]=='^') {
                 out+=parts[j];
                 continue;
             }
+
             const units=parts[j].split(charpat);
+
             units.forEach(s=>{
                 const m=s.match(charpat);
                 if (!m) {
@@ -85,7 +87,7 @@ var providentpali = (function (exports) {
         'mbh':'mVB','mh':'mVh','mp':'mVp','mb':'mVb',
         'nd':'nVd','ndh':'nVD','ṇṭh':'NVX',
         'ñc':'YVc','ñj':'YVj','ñjh':'YVJ',
-        'ṇṭ':'NVV','nt':'nVt','ṇḍ':'NVF',
+        'ṇṭ':'NVW','nt':'nVt','ṇḍ':'NVF',
         'sv':'sVv','sm':'sVm',
         'tv':'tVv',
 
@@ -93,13 +95,11 @@ var providentpali = (function (exports) {
         'ḷh':'LVh',
         'nth':'nVT',
         'yh':'yVh',
-        'ly':'lVy',
         'tr':'tVr',
         'mph':'mVP',
         'nh':'nVh',
         'ñch':'YVC',
         'vh':'vVh',
-        'ṇṭ':'NVW',
         'nv':'nVv',
         'ky':'kVy',
         'gy':'gVy',
@@ -117,7 +117,6 @@ var providentpali = (function (exports) {
         'hv':'hVv',
         'sy':'sVy',
         'dm':'dVm',
-        'khv':'KVv',
         'ṇy':'NVy',
         'kv':'kVv',
         'ṇh':'NVh',//newly added
@@ -149,6 +148,7 @@ var providentpali = (function (exports) {
 
     const convertIASTSyllable=(syl,begin)=>{
         let out='';
+
         if (isRomanized(syl)) {
             let m=syl.match(/^([kgṅcjñṭḍṇtdnpbylḷhsmrv]*)([aāiīuūeo])(ṃ?)$/);
             if (m) {
@@ -161,7 +161,12 @@ var providentpali = (function (exports) {
                 }
             } else {
                 //return '??'+syl;
-                return syl+'V';
+                m=syl.match(/^([kgṅcjñṭḍṇtdnpbylḷhsmrv]*)/);
+                if (m) {
+                	const co=i2p[m[1]];
+                	if (co) out+=co+'V';
+                	else out+='??'+syl;
+            	} else return '??'+syl;
             }
         } else {
             return syl;
@@ -182,7 +187,6 @@ var providentpali = (function (exports) {
             }
             const str=parts[j].replace(/ṁ/ig,'ṃ');
             const words=breakIASTSyllable(str);
-
             let s='';
             for (let i=0;i<words.length;i++) {
                 for (let j=0;j<words[i].length;j++) {
@@ -270,6 +274,773 @@ var providentpali = (function (exports) {
         if (typeof parts==='string') parts=parts.split(/(<[^<]+>)/);
         return doParts(parts,/([a-zA-Z]+)/,toIASTWord).replace(/।/g,'.').replace(/॥/g,'.')
     };
+    //from pitaka/offtext/def.js
+    const OFFTAG_REGEX=/(\^[a-z_]+[#@\/\.\:~a-z_\-\d]*)(\[(?:\\.|.)*?\])?/; //標記樣式
+    const toIASTOffText=parts=>{
+        if (!parts) return '';
+        if (typeof parts==='string') parts=parts.split(OFFTAG_REGEX);
+        return doParts(parts,/([a-zA-Z]+)/,toIASTWord).replace(/।/g,'.').replace(/॥/g,'.')
+    };
+
+    const CharOrder=[];
+    const Order='aiueokKgGMcCjJYWXFQNtTdDnpPbBmhHyrRlLvsSZAIUEOV';
+    for (let i=0;i<Order.length;i++) {
+        CharOrder[ Order.charCodeAt(i) ] = i+1;
+    }
+
+    const providently=(s1,s2)=>{
+        let i=0,j=0;
+        while (i<s1.length && j<s2.length) {
+            const c1=  CharOrder[ s1.charCodeAt(i) ] || 100 ;
+            const c2=  CharOrder[ s2.charCodeAt(j) ] || 100;
+            if (c1!==c2) {
+                return c1-c2;
+            }
+            i++;j++;
+        }
+        return 0;
+    };
+    const providently0=(s1,s2)=>providently(s1[0],s2[0]);
+    const providently1=(s1,s2)=>providently(s1[1],s2[1]);
+
+    const NormLexeme={
+    	'bODI':'bOjVJ',
+    	'smVbODI':'smVbOjVJ',
+    	// 'vVyy':'bVby',
+    	// 'vVyyYV':'bVbyYV', //can be removed if smarter
+    };
+    const DeNormLexeme={};
+    const samecount=(s1,s2)=>{
+    	let c=0,i1=0,i2=0;
+    	while (i1 < s1.length&&i2<s2.length) {
+    		if (s1[i1]==s2[i2]) c++;
+    		else break;
+    		i1++;i2++;
+    	}
+    	return c;
+    };
+    const sameendcount=(s1,s2)=>{
+    	let c=0,i1=s1.length-1,i2=s2.length-1;
+    	while (i1>0&&i2>0) {
+    		if (s1[i1]==s2[i2]) c++;
+    		else break;
+    		i1--;i2--;
+    	}
+    	return c;
+    };
+    for (let key in NormLexeme) {
+    	const rkey=NormLexeme[key];
+    	if (key.indexOf('>')>-1) continue;
+    	const cnt=samecount(rkey,key);
+    	if (cnt) {
+    		DeNormLexeme[rkey]=cnt?(key.slice(0,cnt)+'<'+key.slice(cnt)):key;
+    	} else {
+    		const cnt=sameendcount(rkey,key);
+    		DeNormLexeme[rkey]=cnt?(key.slice(0,key.length-cnt)+'>'+key.slice(key.length-cnt)):key;
+    	}
+    }
+
+    // console.log('denor',DeNormLexeme)
+
+    const InsertRules={'65':'A'};
+    const InsertRuleReverse={};
+    const Rules={ //規則號不得為 0,1,2
+    // A+B=C    A<B=C   A>B=C    A-B=C
+    //   C        AC     BC       ACB     替換結果
+    //
+    	'a<A=A':'3',
+        'a<A=m':'4',
+    	'a<A=Vv':'5',
+    	'a<A=d':'6',
+    	'a-A=r':'7',
+    	'a<A=t':'9',
+    	'a-AA=r':'3',
+    	'a<I=E':'3',
+    	'a<I=A':'4',
+    	'a<I=IA':'5',
+    	'a-I=y':'6',
+    	'a-I=m':'7',
+
+    	'a<E=E':'3',
+    	'a<E=A':'4',
+    	'a-E=d':'5',
+    	'a-E=m':'6',
+    	'a-E=y':'7',
+    	'a<E=':'8',
+    	'a<g=gVg':'3', //因為不是 gVG ，所以無法 autorule
+    	'a<g=NVg':'4',
+    	'a<p=pVp':'3',
+
+    	'a<U=O':'3',
+    	'a<U=A':'4',
+    	'a<U=U':'5',
+    	'a<U=UA':'6',
+    	'a<O=U':'3',
+
+    	'a<Ū=UA':'3', //左邊的 UA 要用 Ū 表示，但sandhi 不用
+    	'a<Ī=IA':'4',  // IA 也是 ， 
+    	'a<Ī=E':'5',
+    	'a<t=nVt':'4', 
+    	'a<v=bVb':'5',
+
+    	'A<AA=':'3',  //但 AA 不轉為 Ā
+    	'A+U=UA':'3',
+    	'A+I=IA':'3',
+    	'A+I=E':'4',
+    	'A-I=y':'5',
+    	'A-I=r':'6',
+    	'A-I=t':'7',
+    	'A-E=y':'4',
+    	'A<A=y':'3',
+    	'A<A=m':'4',
+    	'A+A=E':'5',
+    	'A+A=A':'6',
+    	'A+A=':'7',
+    	'M>AA=m':'3',  //kImAnIsMs << kIM-aAnIsMs, remove left, keep right
+    	'M+A=A':'3',
+    	'M+A=m':'4',
+    	'M+A=d':'5',
+    	'M+A=':'6',
+    	'M+A=nA':'7',
+    	'M+E=A':'3',
+    	'M+b=bVb':'3',
+    	'M+U=UA':'3',
+    	'M+I=IA':'3',
+    	'M+I=I':'4',
+    	'M>I=y':'5',
+    	'M+I=':'6',
+    	'M+Ī=A':'3',
+    	'M+g=NVg':'3',
+    	'M+p=pVp':'3',
+    	'M+k=NVk':'3',
+    	'M+J=jVJ':'3',
+    	'M+X=WVX':'3',
+    	'M+y=YVY':'3',//sukhaññeva=sukhaṃ-yeva
+
+
+    	'I+I=IA':'3',
+    	'I+I=E':'4',
+    	'I-I=y':'5',
+    	'I-I=r':'6',
+    	'I+A=jVJ':'2', //this is a special rule for bodhi+anga
+    	'I+A=IA':'3',
+    	'I+A=A':'4',
+    	'I+A=Vy':'6',
+        'I<A=m':'7',
+    	'I<A=y':'8',
+    	'I<A=r':'9',
+    	'I+A=':'10',
+
+    	'I<d=nVd':'3',
+    	'I+U=UA':'3',
+    	// 'I>aA=':'3',  //use 1 instead
+    	'I+AA=I':'4',
+    	'I-AA=r':'5',
+    	'I<AA=':'6', //kucchisayā=kucchi-āsayā
+
+    	'I>E=Vv':'3',
+    	'I>E=Vp':'4',
+    	'I-E=d':'5',
+    	'I-E=m':'7',
+    	'I-E=r':'8',
+    	'I<D=nVD':'3',
+    	'I>t=IA':'3', //只有接 t可能長音化
+    	'I>k=IA':'3', //長音化
+    	'Ī+A=A':'3',
+    	'Ī+U=UA':'3',
+
+    	'U+A=UA':'3', //長音化
+    	'U+A=Vv':'4',
+    	'U+A=A':'5',
+    	'U+A=VvA':'6',
+    	'U+A=O':'7',
+    	'U+A=':'8',
+
+    	'U+I=U':'3',
+    	'U+I=O':'4',
+    	'U+I=UA':'5',
+    	'U+U=UA':'3',
+    	'U-U=h':'4',
+    	'U>E=Vv':'3',
+    	'U-E=d':'4',
+    	'U-E=r':'5',
+    	'U>AA=Vv':'3',
+    	'U<v=bVb':'3',
+    	'U<D=nVD':'3',
+    	'U>t=UA':'3', //長音化
+    	'U<t=tVt':'4',
+    	'U<tA=tVt':'4',
+    	'E+A=A':'3',
+    	'E+A=Vy':'4',
+    	'E+A=VyA':'5',
+    	'E>AA=Vy':'5',
+    	'E+A=':'6',
+    	'E+U=UA':'3',
+    	'E-I=r':'3',
+
+    	'O+A=':'3',
+    	'O+A=Vv':'4',
+    	'O+A=A':'5',
+    	'O+A=VvA':'6',
+    	'O>I=Vv':'3',
+    	'O-I=r':'4',
+    	'O>E=Vv':'3',
+    	'O-E=y':'4',
+    	'O-E=v':'5',
+    	'O>AA=Vv':'3',
+    	'O-U=v':'3',//vammikovupacīyati=vammiko-upacīyati
+    	'V+A=':'3',
+    	'V+A=A':'4',
+    	'V+U=UA':'3',
+
+
+    // might be vri typo , need to fix original text
+    	'V+v=':'4',   //sātaccamuccati=sātaccam-vuccati
+    	'M+v=m':'4' , //nibbānamuccati [ 'nibbānaṃ', 'vuccati' ]
+
+     	'a<s=r':'9',//pahūtarattaratanāya [ 'pahūta', 'satta', 'ratanāya' ]
+
+    	//reserve rules
+    	//01 => A insert A
+
+    	// 'y+v=bVb':'2', //this is a special rule for udaya+vaya  ==>udayabbaya
+
+    };
+    const PAIRING='|', EQUAL='='; //pairing left and right as a search key
+    const ELIDENONE=0,ELIDELEFT=1, ELIDERIGHT=2 ,ELIDEBOTH=3;
+    const RuleKeys={[ELIDENONE]:'-',[ELIDELEFT]:'>',[ELIDERIGHT]:'<',[ELIDEBOTH]:'+'};
+    const RuleKeysRegEx=/([<>\-+])/;
+    const JoinTypes={};
+    const BuildRules=()=>{
+    	for (let rule in Rules) {
+    		const joiner=Rules[rule]; // then join operator
+    		if (!JoinTypes[joiner]) JoinTypes[joiner]={};
+
+    		const at=rule.indexOf(EQUAL);
+    		const sandhi=rule.slice(at+1);
+    		const [left,elision,right]=rule.slice(0,at).split(RuleKeysRegEx);
+
+    		const pair=left+PAIRING+right;
+    		if (JoinTypes[joiner][pair]) console.log('key ',pair,'exists');
+    		JoinTypes[joiner][pair]=elision+sandhi; //left is not elided
+    	}
+    	for (let joiner in InsertRules) {
+    		InsertRuleReverse[InsertRules[joiner]]=joiner;
+    	}
+    };
+    BuildRules();
+
+    const isAssimiliar=(right,sandhi)=>{
+    	if ( sandhi.length!==3 || sandhi[1]!=='V' || right[0]!==sandhi[2]) return false;
+    	if (sandhi[0].match(/[ckgjbptdms]/) && (right[0]==sandhi[2] || right[0]==sandhi[2].toLowerCase()) ) return true;
+
+    	if (right[0]=='Q' || right[0]=='X' || right[0]=='F' || right[0]=='Q'|| right[0]=='Y') return true;
+    };
+    const getRule=(left,right,leftconsumed,rightconsumed,sandhi,verbose)=>{
+    	if ( !leftconsumed && !rightconsumed){
+    		if (!sandhi) return 0;//nothing to do
+    		const joiner=InsertRuleReverse[sandhi];
+    		// console.log('jointer',joiner,leftconsumed,rightconsumed,left,right)
+    		if (joiner) return joiner;
+    	}
+
+    	let rulekey=RuleKeys[ELIDENONE];
+    	if (rightconsumed && !leftconsumed) rulekey=RuleKeys[ELIDERIGHT];
+    	else if (leftconsumed && !rightconsumed) rulekey=RuleKeys[ELIDELEFT];
+    	else if (rightconsumed && leftconsumed) rulekey=RuleKeys[ELIDEBOTH];
+
+    	let key=left+rulekey+right+EQUAL+sandhi;
+
+    	let r=Rules[key];
+
+    	if (!r && rulekey==RuleKeys[ELIDEBOTH]) { //for ['kImAnIsMs',['kIM','aAnIsMs'],'kIM3AAnIsMs',['kI<M','m','AAnIsMs']],
+    		key=left+RuleKeys[ELIDELEFT]+right+EQUAL+sandhi;
+    		r=Rules[key];
+    		if (!r) {
+    			key=left+RuleKeys[ELIDENONE]+right+EQUAL+sandhi;
+    		}
+    	}
+
+    	if (!sandhi && !right && (!left||left==='a')) return ELIDENONE;
+    	if (!sandhi && right==='') return ELIDELEFT;
+    	if (!sandhi && (left===''||left==='a') && !right) return ELIDERIGHT;
+
+    	verbose&&console.log('RR ',right,sandhi,'assim',isAssimiliar(right,sandhi));
+    	//try assimilization rule
+
+    	if (!r && isAssimiliar(right,sandhi)) {
+    		if (isVowel(left)) r=ELIDEBOTH;
+    		else if (left.match(/[AIUOE]$/)) r=ELIDERIGHT;//default keeping the stem
+    	}
+    	return parseInt(r)||ELIDENONE;
+    };
+
+    const getLeft=str=>{
+    	const at=str.lastIndexOf('<');
+    	return ~at?str.slice(at+1):'';
+    };
+    const getRight=str=>{
+    	const at=str.indexOf('>');
+    	return ~at?str.slice(0,at):'';
+    };
+
+    const getTailSyl=str=>{ //return vowel
+    	const ch1=str.slice(str.length-1), ch2=str.slice(str.length-2);
+    	if (ch2==='IA') return 'Ī'
+    	else if (ch2==='UA') return 'Ū'
+    	else if (ch1==='E') return 'E'
+    	else if (ch1==='O') return 'O'
+    	else if (ch1=='A') return 'A'
+    	else if (ch1=='I') return 'I'
+    	else if (ch1=='U') return 'U'
+    	else if (ch1=='V') return 'V'
+    	else if (ch1=='M') return 'M'
+    	return 'a';
+    };
+
+    const getHeadSyl=str=>{ //return vowel or consonant
+    	const ch1=str.slice(0,1), ch2=str.slice(0,2);
+    	if (ch2==='aA') return 'aA'; //not changing, becuase a is dropped automatically
+    	else if (ch2==='AA') return 'AA';
+    	else if (ch2==='iA' || ch2=='IA') return 'Ī';
+    	else if (ch2==='uA' || ch2=='UA') return 'Ū';
+    	else if (ch1==='ū') return 'Ū';
+    	else if (ch1==='ī') return 'Ī';
+    	else if (ch1.toLowerCase()==='a') return 'A';
+    	else if (ch1.toLowerCase()==='u') return 'U';
+    	else if (ch1.toLowerCase()==='i') return 'I';
+    	else if (ch1.toLowerCase()==='o') return 'O';
+    	else if (ch1.toLowerCase()==='e') return 'E';
+    	else return ch1+(ch2[1]=='A'?'A':''); //because 
+    };
+
+    const sbProvident=str=>{ //convert long vowel to single byte, for easier comparison
+    	return str.replace(/UA/g,'Ū').replace(/IA/g,'Ī')
+    	.replace(/iA/g,'ī').replace(/uA/g,'ū')
+    	// .replace(/aA/g,'ā')
+    };
+
+    const mbProvident=str=>{//convert single byte vowel back to provident format
+    	return str.replace(/Ū/g,'UA').replace(/Ī/g,'IA')
+    	.replace(/ī/g,'iA').replace(/ū/g,'uA')
+    	// .replace(/ā/g,'aA')
+    };
+
+    const getAssimiliar=w=>{
+    	const m=w.match(/^([KGCJPBTDkgcjpbmtds])/);
+    	if (m)	return m[1].toLowerCase()+'V'+m[1][0];
+    	else if (w[0]=='Q') return 'FVQ';
+    	else if (w[0]=='F') return 'FVF';
+    	else if (w[0]=='W') return 'WVW';
+    	else if (w[0]=='X') return 'WVX';
+    	else if (w[0]=='Y') return 'YVY';
+    };
+    const sameAlpha=(v1,v2)=>{
+    	if (v1.match(/[aeiouAEIUO]/)) return v1.toUpperCase()===v2.toUpperCase();
+    	return v1===v2;
+    };
+    const isVowel=s=>!!s.match(/^[aeiouīūāŪĪĀAEIOU]/);
+    const isConsonant=s=>!isVowel(s);
+
+
+    const getJoinType=(jt,left,right,verbose)=>{
+    	let join=parseInt(jt);
+    	const jtypes=JoinTypes[join];
+    	const L=getTailSyl(left),R=getHeadSyl(right);
+
+
+    	if (InsertRules[jt]) {
+    		 return {keepRight:true,keepLeft:true,sandhi:InsertRules[jt],join:0,rightconsumed:0,leftconsumed:0};
+    	}
+
+    	let sandhi ,keepLeft=(join==ELIDERIGHT||join==ELIDENONE)
+    	,keepRight=(join==ELIDELEFT || join==ELIDENONE);
+    	let autorule=false;
+    	if (join>=ELIDEBOTH) {
+    		sandhi=jtypes[left+PAIRING+R];
+    		if (typeof sandhi==='undefined' && isConsonant(left)) { 
+    			sandhi=jtypes[L+PAIRING+R];
+    		}
+    	}
+
+    	if (typeof sandhi=='undefined') {
+    		if (jt==ELIDEBOTH || jt==ELIDERIGHT) {
+    			const assim=getAssimiliar(right);
+    			verbose&&console.log('assim',assim,right,jt);
+    			if (assim) {
+    				if (jt==ELIDERIGHT && sandhi) sandhi='<'+sandhi;
+    				verbose&&console.log('auto sandhi',sandhi);
+    				autorule=true;
+    				sandhi=assim;				
+    			}
+    		}
+    	}
+    	if (!sandhi)sandhi='';
+
+    	if (sandhi) {
+    		const elision=sandhi[0];
+    		if (elision==RuleKeys[ELIDENONE]) {keepLeft=true;keepRight=true;}
+    		else if (elision==RuleKeys[ELIDERIGHT]) keepLeft=true;
+    		else if (elision==RuleKeys[ELIDELEFT] ) keepRight=true;
+    		if (elision.match(RuleKeysRegEx)) sandhi=sandhi.slice(1);
+    	}
+    	verbose&&console.log('sandhi',sandhi,'keepLeft',keepLeft,'keepRight',keepRight);
+
+    	//autorule keep left, consume right
+    	let leftconsumed=(!autorule &&(!keepLeft  || join===ELIDELEFT) )?left.length:0; //vowel only , can do toLowerCase
+
+    	if (leftconsumed>1) leftconsumed=1;
+    	
+    	const rightconsumed=!keepRight&&((join===ELIDERIGHT ||join>=ELIDEBOTH)|| !sameAlpha(right,R) || autorule)?right.length:0;
+    	verbose&&console.log('rightconsumed',rightconsumed,'autorule',autorule);
+    	// verbose&&console.log('leftconsumed',leftconsumed,left.length,(join===ELIDERIGHT ||join===ELIDEBOTH||right.toUpp))
+
+    	return {keepRight,keepLeft,sandhi,join,rightconsumed,leftconsumed}
+    };
+
+    /*
+      根據 正詞和詞件陣列，分解出 左字後綴 , 連音 ,右字前綴 。
+      偶數為詞件，奇數元素為連音。  >< 刪除的部分
+      輸入： pdOpm , ['pd','upm']
+      輸出： [ "pd", "O" , "u>pm" ] 
+
+      這是詞件式的展開型。
+      不考慮連音是否符合規則。
+    */
+    const tryLexeme=(lx,i,orth,prev,final,verbose)=>{
+    		let cap=false,alpha=false;
+    		if (i&&lx.slice(0,2)=='aA') {
+    			alpha=true; //獨字時多出的 a, parseFormula 時補上
+    			lx=lx.slice(1);	
+    		}
+    		verbose&&console.log(lx,orth);
+
+    		let at1=orth.indexOf(lx.slice(0,lx.length-1),prev);//開頭符合
+    		let at2=-1;
+    		if (i) {
+    			 at2=orth.indexOf(lx.slice(1,lx.length-1),prev); //從第2字開始符合
+    		}
+    		if (at2>-1 && orth.slice(at2)[1]=='V' && lx.length<3) { //workaround for sIAlbVbt=sIAl3bt 
+    		 	 const at3=orth.indexOf(lx.slice(lx.length-1),at2+1); //should not match bV
+    		 	 if (at3>-1 && lx.length<3) {
+    		 	 		at2=at3;
+    		 	 		at1=-1;
+    		 	 }
+    		}
+
+        //deal with 'cEv',['c','ev']  , e=>E 
+    		if (i&&at1==-1 && at2>-1) { //try auto capitalize following lexeme
+    			if (lx.charAt(0).match(/[eiuoūīā]/) ) {
+    				lx=lx.charAt(0).toUpperCase()+lx.slice(1);
+    				cap=true; //開頭的元音轉大寫
+    				//try again
+    				at1=orth.indexOf(lx.slice(0,lx.length-1),prev);//開頭符合				
+    			}
+    		}
+
+
+
+    		verbose&&console.log('try lexeme',lx,at1,at2,orth.slice(at2),alpha);
+
+
+    		return [at1,at2,cap,alpha,lx]
+    };
+    const lexify=(mborth,lexemes,verbose)=>{
+    	let orth=sbProvident(mborth);
+    	let prev=0,	out=[]	,cap=false,alpha=false, lexeme='', extra='',normed=false;
+    	for (let i=0;i<lexemes.length;i++) {
+    		const final=lexemes.length-1 ==i;
+    		let lx=sbProvident(lexemes[i]);
+    		let at1,at2;
+    		[at1,at2,cap,alpha,lx]=tryLexeme(lx,i,orth,prev, final,verbose);
+    		if (at1==-1 && at2==-1) { //no match , try NormLexeme
+    			if (NormLexeme[lexemes[i]]) {
+    				lx=sbProvident(NormLexeme[lexemes[i]]);
+    				normed=true;
+    				[at1,at2,cap,alpha,lx]=tryLexeme(lx,i,orth,prev,final, verbose);
+    			}
+    		}
+
+    		let at=-1;
+    		if (~at1) at=at1;
+    		else if (~at2 && i) at=at2;
+
+    		if (at==-1) {
+    			out.push(-1);//fail marker
+    			return out;			
+    		}
+    		const plast=lx[lx.length-1];
+    		let samelast=false;
+    		verbose&&console.log(i,'o',lx,'at',at,'at1/2',at1,at2,orth.slice(at),prev,orth.slice(prev));
+    		const orth_at_lexemefirst=orth.slice(at-1,at);
+    		if (~at1) {
+    			let eaten=0;
+    			let sandhi=orth.slice(prev,at1);
+
+    			if (sandhi.charAt(sandhi.length-1)=='V') { //eat one more char for combining consonant
+    				 sandhi+=orth.charAt(at1);
+    				 eaten=1;
+    			}
+    			if (sandhi==='a') sandhi=''; //workaround for bhUaAgtO=bhU0aAgtO , double vowel
+    			
+    			i&&out.push(extra+sandhi);//sandhi
+    			// verbose&&extra+sandhi&&console.log('sandhi',extra,'sandhi',sandhi,prev,at1)
+    			let lastidx=at1+lx.length-1;
+    			if (lastidx>=orth.length)lastidx=orth.length-1;
+    			const olast = orth[lastidx];
+    			lexeme=lx;
+    			if (eaten) {
+    				lexeme=lx.slice(0,eaten)+'>'+lx.slice(eaten);
+    			}
+    			if (olast===plast) { //no remain
+    				samelast=true;
+    			} else {
+    				verbose&&console.log('plast',plast,'olast',olast, orth.slice(at1));
+    				lexeme=lexeme.slice(0,lexeme.length-1)+'<'+plast;
+    			}
+
+    		} else if (~at2 && i) {
+    			const samehead=orth.slice(prev,at2+1)===lx.charAt(1);
+    			let sandhi=orth.slice(prev,at2);
+    			if (!sandhi && !samehead) { 
+    				sandhi=orth.slice(prev,at2+1);
+    				verbose&&console.log('empty sandhi, eat one more',sandhi);
+    				at2++;
+    			}
+    			lx.charAt(0);
+
+    			if (sandhi.charAt(sandhi.length-1)=='V') {
+    				sandhi+=orth.charAt(at2);
+    				at2--;
+    			}
+    			const olast = orth[at2+lx.length-2];
+    			let sdhi=sandhi!==lx.charAt(1)?extra+sandhi:'';
+    			out.push(sdhi);
+    			// verbose&&console.log('last',olast,plast,at1)
+    			if (olast===plast) {
+    				samelast=true;
+    				lexeme=lx.charAt(0)+'>'+lx.slice(1);
+    				// prev+=lx.length-1 + sdhi.length;  //如果有sdhi ，表示替代，必須補回，否則at1 找不到
+    			} else {
+    				lexeme=lx.charAt(0)+'>'+lx.slice(1,lx.length-1)+'<'+plast;
+    			}
+    		}
+
+    		if (cap) lexeme=lexeme.charAt(0).toUpperCase()+lexeme.slice(1);
+    		if (alpha) {
+    			/* if orth is keeping the a , double vowel  */
+    			lexeme= ((orth_at_lexemefirst=='a')?'a':'A') +lexeme;
+    			alpha=false;
+    		}
+
+    		if(extra) extra='';
+    		if (normed&&DeNormLexeme[lexeme]!==lexeme) {
+    			  const dlexeme=DeNormLexeme[lexeme];
+    		    out.push(dlexeme||lexeme);
+    		    if (dlexeme) {
+    			    let at=dlexeme.indexOf('<');
+    					if (at>0) extra=lexeme.slice(at);
+    			    at=dlexeme.indexOf('>');
+    					if (at>0) { //patch the sandhi before (for udayabbaya)
+    						const e=lexeme.slice(0, at );
+    						out[out.length-2]+=e;
+    					}
+    		    }
+    		    normed=false;
+    		} else {
+    				out.push(lexeme);	
+    		}
+    		prev=at+lx.length-1;
+    		if (at!==at1&&at==at2) prev--;
+    		if (samelast) prev++;
+    		// verbose&&console.log('ORTH',prev,lx,'at',at,orth.slice(prev),'samelast',samelast,'at',at,at1,at2)
+
+    	}
+    	return out.map(mbProvident);
+    };
+
+    /*
+      將詞件展開式與字串式的轉換，字串式一定可以展開，反之不然。
+      字串式以數字分隔詞件，連音從數字和前後字元，按照規則產生。
+    */
+
+    /** formulate lex to a string*/
+    const formulate=(lex,verbose)=>{
+    	let out='';
+    	if (lex.length<3) return ''
+      if (lex.length%2==0) return '';
+    	for (let i=0;i<lex.length;i++) {
+    		if (i%2) {
+    			const sandhi=lex[i]||'';
+    			const leftconsumed=lex[i-1].indexOf('<')>-1;
+    			const rightconsumed=lex[i+1].indexOf('>')>-1;
+    			const leftv=getTailSyl(lex[i-1].replace('<',''));
+    			const rightv=getHeadSyl(lex[i+1].replace('>',''));
+
+    			let rule=getRule(leftv,rightv,leftconsumed,rightconsumed,sandhi,verbose);
+    			verbose&&console.log('RULE', rule,leftv,'+',rightv,'='+sandhi,verbose);
+    			if (rule===ELIDENONE) {
+    				const left=getLeft(lex[i-1]);
+    				const right=getRight(lex[i+1]);
+    				if ( (left && left!=='a') && !right) rule=ELIDELEFT;
+    				else if (right && !left) rule=ELIDERIGHT;
+    			}
+    			if (sandhi && rule==ELIDENONE) rule=ELIDEBOTH;
+    			verbose&& console.log('formulate',leftv,rightv,'sandhi',sandhi,'rule',rule);
+    			out+=rule;
+    		} else {
+    			let lexeme=lex[i].replace('>','').replace('<','');
+    			lexeme=DeNormLexeme[lexeme]||lexeme;
+    			out+=lexeme;
+    		}
+    	}
+    	return out;
+    };
+    const parseFormula=(_str,verbose)=>{
+    	const out=[];
+    	let prev=0, str=sbProvident(_str),
+    	consumedhead='', //被吃掉的頭
+    	extra='';
+    	if (parseInt(_str).toString()==_str) return [];
+    	const addLexeme=lexeme=>{
+    		lexeme=lexeme.replace(/^\d/,'').replace(/\d$/,'');//prevention
+    		if (lexeme.match(/\d/)) {
+    			 if (lexeme.indexOf('<')>-1 || lexeme.indexOf('>')>-1) {
+    			 	  console.log('error single char lexeme',_str,lexeme);
+    			 } else {
+    			 	  const p=parseFormula(lexeme.replace());
+    			 	  out.push(...p);
+    			 }
+    		} else out.push(lexeme);
+    	};
+
+    	const prevLexeme=(idx, last='',join)=>{
+    		const len=consumedhead.length;
+    		consumedhead='';
+    		let lexeme=len?str.slice(prev,prev+len)+'>'+str.slice(prev+len,idx):str.slice(prev,idx);
+    		// if (lexeme.charAt(0)==='A') lexeme='a'+lexeme;
+    		lexeme+=last;
+
+    		const nlexeme=NormLexeme[lexeme.replace('>','').replace('<','')];
+    		if (nlexeme) {
+    			  lexeme=lexeme.replace('<',''); //workaround for bODI bOjVJ 
+    				const cnt = samecount(nlexeme,lexeme);
+    				if (cnt&&join) { //only apply when join is not 0
+    					lexeme=lexeme.slice(0,cnt)+'<'+lexeme.slice(cnt);
+    					extra=nlexeme.slice(cnt);
+    				} else {
+    					const cnt=sameendcount(nlexeme,lexeme);
+    					if (cnt) {
+    						lexeme=lexeme.replace('>','');
+    						lexeme=lexeme.slice(0,lexeme.length-cnt)+'>'+lexeme.slice(lexeme.length-cnt);
+    						out[out.length-1]+=nlexeme.slice(0,nlexeme.length-cnt);
+    					}
+    				}
+    		} 
+    		return lexeme;
+    	};
+
+    	str.replace(/([a-zA-ZĪŪ])(\d+)([a-zA-ZĀĪŪāūī])/g,(m,left,jt,right, idx)=>{
+    		// eat one more char for leading long A, other vowel UA/IA converted one char Ū Ī
+    		let adv=0;
+    		if ( (right=='a'||right=='A') && str[idx+m.length]==='A' ) {
+    		   right+='A';
+    		   adv=1;
+    		}
+    		const {join,sandhi,rightconsumed,leftconsumed}=getJoinType(jt,left,right,verbose);
+    		verbose&&console.log('sandhi',sandhi,'join',join,'left',left,'right',right,'consumed l',leftconsumed,'r',rightconsumed);
+
+    		let lexeme=leftconsumed?prevLexeme(idx,(idx&&join?'<':'')+left,join): prevLexeme(idx,left,join);
+
+    		addLexeme(lexeme);
+
+    		out.push(extra+sandhi);
+
+    		extra='';
+    		
+    		consumedhead=rightconsumed?right:'';
+    		// verbose&&console.log('rightconsumed',rightconsumed)	
+    		if (join===ELIDERIGHT) idx-=left.length; //沒用到的左邊，補回長度
+    		else if ( !rightconsumed ||join===ELIDELEFT||join===ELIDENONE) idx-=right.length; //沒用到的右邊，補回長度
+    		else {
+    			idx-=right.length;
+    			verbose && console.log('right',right,'prev',idx+m.length,rightconsumed,left,sandhi);
+    		}
+    		prev=idx+m.length+adv;
+    		verbose&&console.log('prev',prev,str.slice(prev));
+    	});
+    	const lexeme=prevLexeme(str.length);
+    	addLexeme(lexeme);
+
+    	return out.map(mbProvident);
+    };
+
+    /** 返回 展開式的 正字*/
+    const orthOf=(lex,verbose)=>{
+    	if (typeof lex==='string') {
+    		lex=parseFormula(lex);
+    		if (lex.length<3) return '';
+    	}
+
+    	if (lex.length==1) return lex.join('');
+    	else if (lex.length==2) {
+    		console.log('wrong lex', lex);
+    		return '';
+    	}
+
+    	//leading a of each lexeme is elided, excerpt the first one
+    	// const lead_aa=lex[0].slice(0,2)==='aA';
+    	
+    	// let s=(lead_a?'a':'')+
+    	let s=lex.map(it=>it!==-1&&it.replace(/<.+$/,'').replace(/^.+>/,'')
+    		.replace(/^AA/,'A')) //AA to be combined with left consonant,   aA standalone double vowel 
+    		// .replace(/^([eiuo])/
+    		// ,(m,m1)=>m1.toUpperCase())
+    	.map((it,idx,self)=>( (self[idx+1]&&NormLexeme[it]) ||it))
+    	 //change to normLexeme only when sandhi exist 
+    	 // ( sambodhi has no sandhi/sambojjha has sandhi), but lexeme is always sambodhi
+    	.join('');
+    	// if (lead_aa) s='aA'+s.slice(1);
+
+    	if (s.match(/^[AEIOU]/)) s=s.charAt(0).toLowerCase()+s.slice(1);
+
+
+    	return s;
+    };
+    const LEXEME_SPLIT='/';
+    const lexemeOf=(lex,splitchar=LEXEME_SPLIT)=>{
+    	let s='';
+
+    	if (typeof lex==='string') {
+    		s=lex.replace(/\d+/g,splitchar);
+    	} else {
+    		for (let i=0;i<lex.length;i+=2) {
+    			if (i) s+=splitchar;
+    			s+=lex[i].replace(/[><]/g,'');
+    		}
+    	}
+
+    	//auto convert following lexeme first vowel to lowercase.
+    	s=s.replace(/(.)([AEIOU])/g,(m,m1,m2)=>m1==splitchar?m1+m2.toLowerCase():m1+m2);
+
+    	return s
+    };
+
+    const syllablify=w=>{
+        const syl=w.split(/([kKgGbcCjJBpPtTdDFQWXhHlLmnsSvNyrY][EIOUA]{0,2}M?)/).filter(it=>!!it);
+        const out=[];
+        let i=0;
+        while (i<syl.length) {
+            if (syl[i]==='V') {
+                out[out.length-1]+=syl[i]+syl[i+1];
+                i++;
+            } else {
+                out.push(syl[i]);
+            }
+            i++;
+        }
+        return out;
+    };
 
     const devanagari={
         'क':'k','ख':'K','ग':'g', 'घ':'G','ङ':'NG', 'ह':'h', // NG 會變為 provident 的 N, 不能重覆故(做反向表時val 變key)
@@ -279,7 +1050,7 @@ var providentpali = (function (exports) {
         'प':'p','फ':'P','ब':'b','भ':'B','म':'m','व':'v','ळ':'L','ं':'M',
         '॰':'',//abbreviation use only by pe...and inside note (版本略符)
         'अ':'a','इ':'i','उ':'u','ए':'e','ओ':'o','आ':'aA','ई':'iI','ऊ':'uU','ऐ':'ai','औ':'au',
-        'ा':'A','ि':'I','ी':'II','ु':'U','ू':'UU','े':'E','ो':'O', 
+        'ा':'A','ि':'I','ी':'IA','ु':'U','ू':'UA','े':'E','ो':'O', 
         '्':'V', //virama , 連接下個輔音。
         '०':'0','१':'1','२':'2','३':'3','४':'4','५':'5','६':'6','७':'7','८':'8','९':'9',
         // '।':'|','॥':'||',
@@ -472,51 +1243,6 @@ var providentpali = (function (exports) {
         return out;
     };
 
-    /*
-    const JoinTypes={
-    	'':{ //default join
-    		'.e':'.E'
-    	},
-    	'1':{
-    		'.a':'.'
-    	}
-    }
-    */
-    const Rules={
-    	'.eE':'0',
-    	'.uO':'0',
-    	'.uUA':'1', // 
-    	// 'IAa':'0',
-    };
-    const JoinTypes={};
-    for (let rule in Rules) {
-    	const jt=Rules[rule];
-    	const left=rule.charAt(0);
-    	const right=rule.charAt(1);
-    	const sandhi=rule.slice(2);
-    	if (!JoinTypes[jt]) JoinTypes[jt]={};
-    	JoinTypes[jt][left+right]=(left+sandhi).trim();
-    }
-    // console.log(JoinTypes)
-    const untease=w=>{
-    	let s=w.replace(/V\-/g,'-')
-    	.replace(/\-a?/g,'-')
-    	.replace(/\-\+[a-zA-Z]/g,'-') //後面那個是多餘的
-    	.replace(/[a-zA-Z]\+\-/g,'-') //前面那個是多餘的
-    	.replace(/\-([aeiuo])/g,(m,m1)=>'-'+m1.toUpperCase())
-    	.replace(/([a-zA-Z])\+(\d*)([a-zA-Z])/g,(m,left, join, right)=>{
-    		if (!join) join='0'; //預設合併方式
-    		const jtype=JoinTypes[join];
-
-    		let repl=jtype[left+right];
-    		if (!repl) repl=jtype['.'+right];
-    		console.log('left',left,'jointype',join,'right',right,'replace',repl&&repl.replace('.',left));
-    		return repl&&repl.replace(/\./g,left)||'';
-    	})
-    	.replace(/\-/g,'');
-    	return s;
-    };
-
     const xml2indic=(str,script='')=>{
         if (!script) return str;
         if (script==='iast'|| script==='romn' || script==='ro') return toIAST(str);
@@ -529,6 +1255,20 @@ var providentpali = (function (exports) {
 
     };
     const deva2IAST=(buf,onError)=>{ //for cst4
+        buf=buf.replace(/\u200d/g,'');    
+        return buf.replace(DEVAPAT_G,(m,deva)=>{
+            const prov=fromDevanagariWord(deva);
+            const num=parseInt(prov);
+            if (!isNaN(num) && num.toString()==prov) return prov;
+            let iast=toIASTWord(prov);
+            if (onError&&iast.indexOf('??') > -1) {
+                onError(deva,prov);
+            }
+            return iast;
+        })
+
+
+        /*
         buf=buf.replace(/\u200d/g,''); //remove zero width joiner
         let out=doParts(buf,DEVAPAT,(deva)=>{
             const prov=fromDevanagariWord(deva);
@@ -540,18 +1280,42 @@ var providentpali = (function (exports) {
             }
             return iast;
         });
+
         return out;
+        */
     };
 
+    const LEXEME_REG_G=/([a-zA-Z]+[\dA-Za-z]*[a-zA-Z]+)/g;
+    const LEX_REG_G=/([a-zA-Z]+\d+[\dA-Za-z]+)/g;
+    const PALIWORD_REG_G=/([a-zA-Z]+)/g;
+    const isLex=w=>!!w.match(/[a-zA-Z]\d[a-zA-Z]/);
+
+    exports.DeNormLexeme = DeNormLexeme;
+    exports.LEXEME_REG_G = LEXEME_REG_G;
+    exports.LEX_REG_G = LEX_REG_G;
+    exports.NormLexeme = NormLexeme;
+    exports.PALIWORD_REG_G = PALIWORD_REG_G;
     exports.RO_CHARS = RO_CHARS;
     exports.breakSyllable = breakSyllable;
     exports.deva2IAST = deva2IAST;
     exports.enumTransliteration = enumTransliteration;
+    exports.formulate = formulate;
     exports.fromDevanagari = fromDevanagari;
     exports.fromIAST = fromIAST;
+    exports.isLex = isLex;
+    exports.lexemeOf = lexemeOf;
+    exports.lexify = lexify;
     exports.offtext2indic = offtext2indic;
+    exports.orthOf = orthOf;
+    exports.parseFormula = parseFormula;
+    exports.providently = providently;
+    exports.providently0 = providently0;
+    exports.providently1 = providently1;
+    exports.samecount = samecount;
+    exports.sameendcount = sameendcount;
+    exports.syllablify = syllablify;
     exports.toIAST = toIAST;
-    exports.untease = untease;
+    exports.toIASTOffText = toIASTOffText;
     exports.xml2indic = xml2indic;
 
     Object.defineProperty(exports, '__esModule', { value: true });

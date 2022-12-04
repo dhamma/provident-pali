@@ -95,7 +95,8 @@ const tests=[
 	// ['tyAvEtM',['tyA','ev','etM'],'tyA2Ev0EtM',['tyA','','E>v','','EtM']] not pass yet 
 ]
 for (let i=0;i<tests.length;i++) {
-	let [orth, lexemes, testlexstr, testlex ,verbose]=tests[i];
+	//正詞   , 詞構    , 詞譜      , 詞件序
+	let [orth, lexemes, testformula, testlex ,verbose]=tests[i];
 
 	const lex =lexify(orth,lexemes,verbose==1);
 	if (verbose==1) console.log('lex',lex)
@@ -105,7 +106,7 @@ for (let i=0;i<tests.length;i++) {
 
 	const parsed=parseFormula(lexstr,verbose==3);
 	test++;
-	if (lexstr == testlexstr && orth==orthOf(lex,verbose==4) 
+	if (lexstr == testformula && orth==orthOf(lex,verbose==4) 
 		&& parsed.join(",")===lex.join(",") && lex.join(",")===testlex.join(",")) {
 		pass++;
 	} else { //verbose mode
@@ -115,10 +116,10 @@ for (let i=0;i<tests.length;i++) {
 			console.log('lexify:',lex );
 			console.log('expect:',testlex);
 		}
-		if (lexstr!==testlexstr){
+		if (lexstr!==testformula){
 			formulate(lex,true)
 			console.log('formulate:',lexstr);
-			console.log('expect   :',testlexstr);
+			console.log('expect   :',testformula);
 		}
 		if (parsed.join(',')!==lex.join(',')) {
 			parseFormula(lexstr,true);
