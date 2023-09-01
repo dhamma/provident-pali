@@ -59,10 +59,10 @@ var providentpali = (function (exports) {
     };
     const Vowels={
         '':'',
-        'a':'','ā':'A','i':'I','ī':'IA','u':'U','ū':'UA','e':'E','o':'O'
+        'a':'','ā':'A','i':'I','ī':'II','u':'U','ū':'UU','e':'E','o':'O'
     };
     const beginVowels={
-        'a':'a','ā':'aA','i':'i','ī':'iA','u':'u','ū':'uA','o':'o','e':'e',
+        'a':'a','ā':'aA','i':'i','ī':'iI','u':'u','ū':'uU','o':'o','e':'e',
     };
     const i2p={
         // '|':'|', //allow | in a word, convert from । ॥ and 
@@ -204,8 +204,11 @@ var providentpali = (function (exports) {
         const leadv='aeiou'.indexOf(ch);
         if (leadv>-1) {
             if (p[0]=='a'&&p[1]=='A') {out+='ā';i++;}
-            else if (p[0]=='i'&&p[1]=='A') {out+='ī';i++;}
-            else if (p[0]=='u'&&p[1]=='A') {out+='ū';i++;}
+            // else if (p[0]=='i'&&p[1]=='A') {out+='ī';i++}
+            // else if (p[0]=='u'&&p[1]=='A') {out+='ū';i++}
+             else if (p[0]=='i'&&p[1]=='I') {out+='ī';i++;}
+             else if (p[0]=='u'&&p[1]=='U') {out+='ū';i++;}
+
             else out+=ch;
             i++;
             ch=p[i];
@@ -222,7 +225,7 @@ var providentpali = (function (exports) {
             const v='MAEIOU'.indexOf(ch);
             if (v>-1) {
                 if (v==0&&needvowel) out+='a'; // ṃ need 'a'
-                if (p[i+1]=='A') { //long vowel
+                if (p[i+1]=='A' || p[i+1]=='I' || p[i+1]=='U') { //long vowel
                     i++;
                     if (v==1) out+='ā'; //redundant
                     else if (v==2) out+='ē'; //not exist in pali
@@ -1050,7 +1053,7 @@ var providentpali = (function (exports) {
         'प':'p','फ':'P','ब':'b','भ':'B','म':'m','व':'v','ळ':'L','ं':'M',
         '॰':'',//abbreviation use only by pe...and inside note (版本略符)
         'अ':'a','इ':'i','उ':'u','ए':'e','ओ':'o','आ':'aA','ई':'iI','ऊ':'uU','ऐ':'ai','औ':'au',
-        'ा':'A','ि':'I','ी':'IA','ु':'U','ू':'UA','े':'E','ो':'O', 
+        'ा':'A','ि':'I','ी':'II','ु':'U','ू':'UU','े':'E','ो':'O', 
         '्':'V', //virama , 連接下個輔音。
         '०':'0','१':'1','२':'2','३':'3','४':'4','५':'5','६':'6','७':'7','८':'8','९':'9',
         // '।':'|','॥':'||',
@@ -1318,8 +1321,6 @@ var providentpali = (function (exports) {
     exports.toIASTOffText = toIASTOffText;
     exports.xml2indic = xml2indic;
 
-    Object.defineProperty(exports, '__esModule', { value: true });
-
     return exports;
 
-}({}));
+})({});
